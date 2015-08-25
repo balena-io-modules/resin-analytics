@@ -1,7 +1,7 @@
 ((root, factory) ->
 	if typeof define is 'function' and define.amd
 		# AMD. Register as an anonymous module.
-		define([ 'mixpanel-lib' ], factory)
+		define([ ], -> factory(window.mixpanel))
 	else if typeof exports is 'object'
 		# Node. Does not work with strict CommonJS, but
 		# only CommonJS-like enviroments that support module.exports,
@@ -9,18 +9,19 @@
 		module.exports = factory(require('mixpanel'))
 ) this, (mixpanelLib) ->
 	return (token) ->
-		mixpanel = mixpanelLib.init(token, track_pageview: false)
+		mixpanel = mixpanelLib.init(token) || window.mixpanel
+		mixpanel.set_config(track_pageview: false)
 
 		userId = null
 		return {
 			isFrontend: typeof mixpanel.identify is 'function'
 
-			signup: (userId, callback) ->
+			signup: (uid, callback) ->
 				if (this.isFrontend)
-					mixpanel.alias(userId, userId)
+					mixpanel.alias(uid, uid)
 					typeof callback is 'function' && callback()
 				else
-					mixpanel.alias(userId, userId, callback)
+					mixpanel.alias(uid, uid, callback)
 
 			login: (uid, callback) ->
 				if (this.isFrontend)
@@ -63,5 +64,5 @@
 					mixpanel.people.set_once(userId, prop, to, callback)
 
 			track: (event, properties, callback) ->
-				mixpanel.track.apply(this, arguments)
+				mixpanel.track.apply(mixpanel, arguments)
 		}

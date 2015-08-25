@@ -1,25 +1,28 @@
 (function() {
   (function(root, factory) {
     if (typeof define === 'function' && define.amd) {
-      return define(['mixpanel-lib'], factory);
+      return define([], function() {
+        return factory(window.mixpanel);
+      });
     } else if (typeof exports === 'object') {
       return module.exports = factory(require('mixpanel'));
     }
   })(this, function(mixpanelLib) {
     return function(token) {
       var mixpanel, userId;
-      mixpanel = mixpanelLib.init(token, {
+      mixpanel = mixpanelLib.init(token) || window.mixpanel;
+      mixpanel.set_config({
         track_pageview: false
       });
       userId = null;
       return {
         isFrontend: typeof mixpanel.identify === 'function',
-        signup: function(userId, callback) {
+        signup: function(uid, callback) {
           if (this.isFrontend) {
-            mixpanel.alias(userId, userId);
+            mixpanel.alias(uid, uid);
             return typeof callback === 'function' && callback();
           } else {
-            return mixpanel.alias(userId, userId, callback);
+            return mixpanel.alias(uid, uid, callback);
           }
         },
         login: function(uid, callback) {
@@ -74,7 +77,7 @@
           }
         },
         track: function(event, properties, callback) {
-          return mixpanel.track.apply(this, arguments);
+          return mixpanel.track.apply(mixpanel, arguments);
         }
       };
     };
