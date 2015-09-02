@@ -77,7 +77,10 @@
           }
         },
         track: function(event, properties, callback) {
-          return mixpanel.track.apply(mixpanel, arguments);
+          if (!this.isFrontend) {
+            properties.distinct_id = userId;
+          }
+          return mixpanel.track.call(mixpanel, event, properties, callback);
         }
       };
     };

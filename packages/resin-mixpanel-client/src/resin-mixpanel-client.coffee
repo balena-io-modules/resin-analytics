@@ -64,5 +64,7 @@
 					mixpanel.people.set_once(userId, prop, to, callback)
 
 			track: (event, properties, callback) ->
-				mixpanel.track.apply(mixpanel, arguments)
+				if (!this.isFrontend)
+					properties.distinct_id = userId
+				mixpanel.track.call(mixpanel, event, properties, callback)
 		}
