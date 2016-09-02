@@ -9,7 +9,7 @@
 		module.exports = factory(require('mixpanel'))
 ) this, (mixpanelLib) ->
 	return (token) ->
-		mixpanel = mixpanelLib.init(token) || window.mixpanel
+		mixpanel = mixpanelLib.init(token) or window.mixpanel
 		mixpanel.set_config(track_pageview: false)
 
 		userId = null
@@ -17,54 +17,54 @@
 			isFrontend: typeof mixpanel.identify is 'function'
 
 			signup: (uid, callback) ->
-				if (this.isFrontend)
+				if @isFrontend
 					mixpanel.alias(uid, uid)
-					typeof callback is 'function' && callback()
+					callback?()
 				else
 					mixpanel.alias(uid, uid, callback)
 
 			login: (uid, callback) ->
-				if (this.isFrontend)
+				if @isFrontend
 					mixpanel.identify(uid)
 				userId = uid
-				typeof callback is 'function' && callback()
+				callback?()
 
 			logout: (callback) ->
-				if (this.isFrontend)
+				if @isFrontend
 					mixpanel.cookie?.clear()
 				userId = null
-				typeof callback is 'function' && callback()
+				callback?()
 
 			set: (props, callback) ->
-				if (!this.isFrontend)
-					return callback() # not supported in the backend version of mixpanel lib
+				if !@isFrontend
+					return callback?() # not supported in the backend version of mixpanel lib
 				mixpanel.register(props)
-				typeof callback is 'function' && callback()
+				callback?()
 
 			setOnce: (props, callback) ->
-				if (!this.isFrontend)
-					return callback()
+				if !@isFrontend
+					return callback?()
 				mixpanel.register_once(props)
-				typeof callback is 'function' && callback()
+				callback?()
 
 			setUser: (prop, to, callback) ->
-				if (this.isFrontend)
+				if @isFrontend
 					mixpanel.people.set(prop, to, callback)
 				else
-					if (!userId)
-						throw Error('(Resin Mixpanel Client) Please login() before using setUser()')
+					if !userId
+						throw new Error('(Resin Mixpanel Client) Please login() before using setUser()')
 					mixpanel.people.set(userId, prop, to, callback)
 
 			setUserOnce: (prop, to, callback) ->
-				if (this.isFrontend)
+				if @isFrontend
 					mixpanel.people.set_once(prop, to, callback)
 				else
-					if (!userId)
-						throw Error('(Resin Mixpanel Client) Please login() before using setUserOnce()')
+					if !userId
+						throw new Error('(Resin Mixpanel Client) Please login() before using setUserOnce()')
 					mixpanel.people.set_once(userId, prop, to, callback)
 
 			track: (event, properties, callback) ->
-				if (!this.isFrontend)
+				if !@isFrontend
 					properties.distinct_id = userId
 				mixpanel.track.call(mixpanel, event, properties, callback)
 		}

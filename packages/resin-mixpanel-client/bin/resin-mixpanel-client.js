@@ -20,7 +20,7 @@
         signup: function(uid, callback) {
           if (this.isFrontend) {
             mixpanel.alias(uid, uid);
-            return typeof callback === 'function' && callback();
+            return typeof callback === "function" ? callback() : void 0;
           } else {
             return mixpanel.alias(uid, uid, callback);
           }
@@ -30,7 +30,7 @@
             mixpanel.identify(uid);
           }
           userId = uid;
-          return typeof callback === 'function' && callback();
+          return typeof callback === "function" ? callback() : void 0;
         },
         logout: function(callback) {
           var ref;
@@ -40,28 +40,28 @@
             }
           }
           userId = null;
-          return typeof callback === 'function' && callback();
+          return typeof callback === "function" ? callback() : void 0;
         },
         set: function(props, callback) {
           if (!this.isFrontend) {
-            return callback();
+            return typeof callback === "function" ? callback() : void 0;
           }
           mixpanel.register(props);
-          return typeof callback === 'function' && callback();
+          return typeof callback === "function" ? callback() : void 0;
         },
         setOnce: function(props, callback) {
           if (!this.isFrontend) {
-            return callback();
+            return typeof callback === "function" ? callback() : void 0;
           }
           mixpanel.register_once(props);
-          return typeof callback === 'function' && callback();
+          return typeof callback === "function" ? callback() : void 0;
         },
         setUser: function(prop, to, callback) {
           if (this.isFrontend) {
             return mixpanel.people.set(prop, to, callback);
           } else {
             if (!userId) {
-              throw Error('(Resin Mixpanel Client) Please login() before using setUser()');
+              throw new Error('(Resin Mixpanel Client) Please login() before using setUser()');
             }
             return mixpanel.people.set(userId, prop, to, callback);
           }
@@ -71,7 +71,7 @@
             return mixpanel.people.set_once(prop, to, callback);
           } else {
             if (!userId) {
-              throw Error('(Resin Mixpanel Client) Please login() before using setUserOnce()');
+              throw new Error('(Resin Mixpanel Client) Please login() before using setUserOnce()');
             }
             return mixpanel.people.set_once(userId, prop, to, callback);
           }
