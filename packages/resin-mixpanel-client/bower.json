@@ -1,7 +1,7 @@
 {
   "name": "resin-mixpanel-client",
   "main": "bin/resin-mixpanel-client.js",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "authors": [
     "Iskren Slavov <iskren@resin.io>"
   ],

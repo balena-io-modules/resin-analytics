@@ -1,11 +1,12 @@
 {
   "name": "resin-mixpanel-client",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "",
   "main": "bin/resin-mixpanel-client.js",
   "scripts": {
     "lint": "resin-lint src gulpfile.coffee",
-    "build": "npm run lint && gulp build"
+    "build": "npm run lint && gulp build",
+    "prepublish": "npm run build"
   },
   "dependencies": {
     "mixpanel": "^0.*.*"
