@@ -9,7 +9,7 @@
 		module.exports = factory(require('mixpanel'))
 ) this, (mixpanelLib) ->
 	return (token) ->
-		mixpanel = mixpanelLib.init(token) or window.mixpanel
+		mixpanel = mixpanelLib.init(token)
 		mixpanel.set_config(track_pageview: false)
 
 		userId = null

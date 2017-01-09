@@ -10,7 +10,7 @@
   })(this, function(mixpanelLib) {
     return function(token) {
       var mixpanel, userId;
-      mixpanel = mixpanelLib.init(token) || window.mixpanel;
+      mixpanel = mixpanelLib.init(token);
       mixpanel.set_config({
         track_pageview: false
       });
