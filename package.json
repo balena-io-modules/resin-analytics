@@ -1,0 +1,8 @@
+{
+	"name": "resin-analytics",
+	"author": "Eugene Mirotin <eugene@resin.io>",
+  "devDependencies": {
+    "lerna": "2.0.0-beta.30"
+  },
+	"license": "Apache-2.0"
+}
