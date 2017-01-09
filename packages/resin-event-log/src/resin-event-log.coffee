@@ -2,7 +2,7 @@
 	if typeof define is 'function' and define.amd
 		# AMD. Register as an anonymous module.
 		define [
-			'../bower_components/resin-mixpanel-client/bin/resin-mixpanel-client'
+			'resin-mixpanel-client'
 			'lodash'
 		], factory
 	else if typeof exports is 'object'

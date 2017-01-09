@@ -9,7 +9,7 @@
     "prepublish": "npm run build"
   },
   "dependencies": {
-    "mixpanel": "^0.*.*"
+    "mixpanel": "^0.6.0"
   },
   "devDependencies": {
     "coffee-script": "^1.9.3",
