@@ -1,4 +1,4 @@
-var mixpanelLib = require('mixpanel')
+var mixpanelLib = require('resin-universal-mixpanel')
 
 module.exports = function(token) {
 

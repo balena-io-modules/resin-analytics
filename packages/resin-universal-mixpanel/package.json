@@ -1,0 +1,16 @@
+{
+  "name": "resin-universal-mixpanel",
+  "version": "0.1.0",
+  "description": "A CommonJS wrapper for both Node.js and browser (async) version of Mixpanel library",
+  "main": "src/node.js",
+  "browser": "src/browser.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Eugene Mirotin <eugene@resin.io>",
+  "license": "Apache-2.0",
+	"dependencies": {
+		"mixpanel": "^0.6.0"
+	}
+}

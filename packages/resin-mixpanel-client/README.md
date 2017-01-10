@@ -8,39 +8,28 @@ Resin Mixpanel Client facility.
 $ npm install resin-mixpanel-client
 ```
 
-```sh
-$ bower install resin-mixpanel-client
-```
-
-## Development mode
-
-The following command will watch for any changes you make:
-
-```sh
-$ gulp watch
-```
-
 ## Using
 
-```coffeescript
-MixpanelClient = require('resin-mixpanel-client')
+```javascript
+var MixpanelClient = require('resin-mixpanel-client')
 
-...
-if eventType is 'signup'
-    MixpanelClient.signup userId, -> # optional callback
+if (eventType is 'signup') {
+	MixpanelClient.signup(userId, function () { /* optional callback */ })
+}
 
-if (eventType is 'login')
-    MixpanelClient.login userId, -> #
+if (eventType is 'login') {
+	MixpanelClient.login(userId, function () { })
+}
 
-MixpanelClient.set props, -> #
-MixpanelClient.setOnce props, -> #
+MixpanelClient.set(props, function () { })
+MixpanelClient.setOnce(props, function () { })
 
-MixpanelClient.setUser props, to, -> #
-MixpanelClient.setUserOnce props, to, -> #
+MixpanelClient.setUser(props, to, function () { })
+MixpanelClient.setUserOnce(props, to, function () { })
 
-MixpanelClient.track eventName, properties, -> #
+MixpanelClient.track(eventName, properties, function () { })
 
-if (eventType is 'logout')
-    MixpanelClient.logout -> #
-
+if (eventType is 'logout') {
+	MixpanelClient.logout(function () { })
+}
 ```
