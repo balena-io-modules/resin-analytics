@@ -1,4 +1,5 @@
 var mixpanelLib = require('mixpanel')
+
 module.exports = function(token) {
 
 	var mixpanel = mixpanelLib.init(token)
@@ -36,17 +37,17 @@ module.exports = function(token) {
 			if (typeof callback === "function") callback()
 		},
 		set: function(props, callback) {
-			if (!isBrowser) {
-				if (typeof callback === "function") callback()
+			if (isBrowser) {
+				mixpanel.register(props)
 			}
-			mixpanel.register(props)
+
 			if (typeof callback === "function") callback()
 		},
 		setOnce: function(props, callback) {
-			if (!isBrowser) {
-				if (typeof callback === "function") callback()
+			if (isBrowser) {
+				mixpanel.register_once(props)
 			}
-			mixpanel.register_once(props)
+
 			if (typeof callback === "function") callback()
 		},
 		setUser: function(prop, to, callback) {

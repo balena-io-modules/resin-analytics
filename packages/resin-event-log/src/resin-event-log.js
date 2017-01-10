@@ -1,14 +1,17 @@
 var ResinMixpanelClient = require('resin-mixpanel-client')
-var _ = require('lodash')
+var assign = require('lodash/assign')
+var pick = require('lodash/pick')
+var startCase = require('lodash/startCase')
 
 var EVENTS = {
-	user: ['login', 'logout', 'signup', 'passwordCreate', 'passwordEdit', 'emailEdit'],
-	publicKey: ['create', 'delete'],
-	application: ['create', 'open', 'delete', 'osDownload'],
-	environmentVariable: ['create', 'edit', 'delete'],
-	device: ['open', 'rename', 'delete', 'terminalOpen', 'terminalClose'],
-	deviceEnvironmentVariable: ['create', 'edit', 'delete']
+	user: [ 'login', 'logout', 'signup', 'passwordCreate', 'passwordEdit', 'emailEdit' ],
+	publicKey: [ 'create', 'delete' ],
+	application: [ 'create', 'open', 'delete', 'osDownload' ],
+	environmentVariable: [ 'create', 'edit', 'delete' ],
+	device: [ 'open', 'rename', 'delete', 'terminalOpen', 'terminalClose' ],
+	deviceEnvironmentVariable: [ 'create', 'edit', 'delete' ]
 }
+
 var HOOKS = {
 	beforeCreate: function(type, jsonData, applicationId, deviceId, callback) {
 		return callback()
@@ -21,20 +24,30 @@ module.exports = function(mixpanelToken, subsystem, hooks) {
 		throw Error('mixpanelToken and subsystem are required to start events interaction.')
 	}
 
-	hooks = _.defaults(hooks, HOOKS)
+	hooks = assign({}, HOOKS, hooks)
 
 	var mixpanel = ResinMixpanelClient(mixpanelToken)
 
 	var getMixpanelUser = function(userData) {
-		var mixpanelUser
-		mixpanelUser = _.assign({
+		var mixpanelUser = assign({
 			'$email': userData.email,
 			'$name': userData.username
 		}, userData)
-		return _.pick(mixpanelUser, ['$email', '$name', '$created', 'hasPasswordSet', 'iat', 'id', 'permissions', 'public_key', 'username'])
+		return pick(mixpanelUser, [
+			'$email',
+			'$name',
+			'$created',
+			'hasPasswordSet',
+			'iat',
+			'id',
+			'permissions',
+			'public_key',
+			'username'
+		])
 	}
 
-	var exported = {
+	var eventLog = {
+		userId: null,
 		subsystem: subsystem,
 		start: function(user, callback) {
 			if (!user) {
@@ -61,32 +74,27 @@ module.exports = function(mixpanelToken, subsystem, hooks) {
 		},
 		create: function(type, jsonData, applicationId, deviceId) {
 			var _this = this
-			return hooks.beforeCreate.call(this, type, jsonData, applicationId, deviceId, function() {
-					return mixpanel.track("[" + _this.subsystem + "] " + type, {
-						applicationId: applicationId,
-						deviceId: deviceId,
-						jsonData: jsonData
-					}, function() {
-						return hooks.afterCreate.call(_this, type, jsonData, applicationId, deviceId)
-					})
+			hooks.beforeCreate.call(this, type, jsonData, applicationId, deviceId, function() {
+				return mixpanel.track("[" + _this.subsystem + "] " + type, {
+					applicationId: applicationId,
+					deviceId: deviceId,
+					jsonData: jsonData
+				}, function() {
+					hooks.afterCreate.call(_this, type, jsonData, applicationId, deviceId)
+				})
 			})
 		}
 	}
-	_.forEach(EVENTS, function(events, base) {
-		if (exported[base] == null) {
-			exported[base] = {}
-		}
-		return _.forEach(events, function(event) {
-			return exported[base][event] = function(jsonData, applicationId, deviceId) {
-				if (applicationId == null) {
-					applicationId = null
-				}
-				if (deviceId == null) {
-					deviceId = null
-				}
-				return exported.create(_.startCase(base + " " + event), jsonData, applicationId, deviceId)
+
+	for (var base in EVENTS) {
+		var events = EVENTS[base]
+		var obj = eventLog[base] = {}
+		events.forEach(function(event) {
+			obj[event] = function(jsonData, applicationId, deviceId) {
+				return eventLog.create(startCase(base + " " + event), jsonData, applicationId, deviceId)
 			}
 		})
-	})
-	return exported
+	}
+
+	return eventLog
 }
