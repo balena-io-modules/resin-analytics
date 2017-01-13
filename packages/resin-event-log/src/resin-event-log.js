@@ -2,6 +2,7 @@ var ResinMixpanelClient = require('resin-mixpanel-client')
 var forEach = require('lodash/forEach')
 var assign = require('lodash/assign')
 var pick = require('lodash/pick')
+var keys = require('lodash/keys')
 var startCase = require('lodash/startCase')
 
 var EVENTS = {
@@ -20,12 +21,19 @@ var HOOKS = {
 	afterCreate: function(error, type, jsonData, applicationId, deviceId) {}
 }
 
-module.exports = function(mixpanelToken, subsystem, hooks) {
-	if (!mixpanelToken || !subsystem) {
-		throw Error('mixpanelToken and subsystem are required to start events interaction.')
+module.exports = function(options) {
+	options = options || {}
+	var mixpanelToken = options.mixpanelToken,
+		prefix = options.prefix
+	if (!mixpanelToken || !prefix) {
+		throw Error('mixpanelToken and prefix are required.')
 	}
 
-	hooks = assign({}, HOOKS, hooks)
+	var hooks = assign(
+		{},
+		HOOKS,
+		pick(options, keys(HOOKS))
+	)
 
 	var mixpanel = ResinMixpanelClient(mixpanelToken)
 
@@ -49,7 +57,7 @@ module.exports = function(mixpanelToken, subsystem, hooks) {
 
 	var eventLog = {
 		userId: null,
-		subsystem: subsystem,
+		prefix: prefix,
 		start: function(user, callback) {
 			if (!user) {
 				throw Error('user is required to start events interaction.')
@@ -76,7 +84,7 @@ module.exports = function(mixpanelToken, subsystem, hooks) {
 		create: function(type, jsonData, applicationId, deviceId) {
 			var _this = this
 			hooks.beforeCreate.call(this, type, jsonData, applicationId, deviceId, function() {
-				return mixpanel.track("[" + _this.subsystem + "] " + type, {
+				return mixpanel.track("[" + _this.prefix + "] " + type, {
 					applicationId: applicationId,
 					deviceId: deviceId,
 					jsonData: jsonData
