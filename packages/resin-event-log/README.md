@@ -13,7 +13,9 @@ $ npm install resin-event-log
 ```javascript
 var EventLog = require('resin-event-log')
 
-var eventLogger = EventLog(MIXPANEL_TOKEN, 'Subsystem - UI, CLI, etc.', {
+var eventLogger = EventLog({
+	mixpanelToken: MIXPANEL_TOKEN,
+	prefix: 'UI, CLI, etc.',
 	// Hooks:
 	beforeCreate: function (type, jsonData, applicationId, deviceId, callback) {
 		this.start('User ID', callback)

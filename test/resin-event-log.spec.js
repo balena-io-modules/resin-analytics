@@ -33,7 +33,9 @@ describe('ResinEventLog', function () {
 		it('should make request to mixpanel and pass the token', function (done) {
 			var nockRequest = createMixpanelNock('/track', 201)
 
-			var eventLog = ResinEventLog(MIXPANEL_TOKEN, SYSTEM, {
+			var eventLog = ResinEventLog({
+				mixpanelToken: MIXPANEL_TOKEN,
+				prefix: SYSTEM,
 				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
 					if (err) {
 						console.error('Mixpanel error:', err)
@@ -51,7 +53,9 @@ describe('ResinEventLog', function () {
 		it('should have semantic methods like device.rename', function (done) {
 			var nockRequest = createMixpanelNock('/track', 201)
 
-			var eventLog = ResinEventLog(MIXPANEL_TOKEN, SYSTEM, {
+			var eventLog = ResinEventLog({
+				mixpanelToken: MIXPANEL_TOKEN,
+				prefix: SYSTEM,
 				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
 					if (err) {
 						console.error('Mixpanel error:', err)
