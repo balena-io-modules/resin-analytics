@@ -2,7 +2,14 @@
   "name": "resin-analytics",
   "author": "Eugene Mirotin <eugene@resin.io>",
   "devDependencies": {
-    "lerna": "2.0.0-beta.30"
+    "base-64": "^0.1.0",
+    "chai": "^3.5.0",
+    "lerna": "2.0.0-beta.30",
+    "mocha": "^3.2.0",
+    "nock": "^9.0.2"
   },
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "scripts": {
+    "test": "lerna bootstrap && mocha"
+  }
 }

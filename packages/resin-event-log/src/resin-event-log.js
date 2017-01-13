@@ -1,4 +1,5 @@
 var ResinMixpanelClient = require('resin-mixpanel-client')
+var forEach = require('lodash/forEach')
 var assign = require('lodash/assign')
 var pick = require('lodash/pick')
 var startCase = require('lodash/startCase')
@@ -16,7 +17,7 @@ var HOOKS = {
 	beforeCreate: function(type, jsonData, applicationId, deviceId, callback) {
 		return callback()
 	},
-	afterCreate: function(type, jsonData, applicationId, deviceId) {}
+	afterCreate: function(error, type, jsonData, applicationId, deviceId) {}
 }
 
 module.exports = function(mixpanelToken, subsystem, hooks) {
@@ -79,22 +80,21 @@ module.exports = function(mixpanelToken, subsystem, hooks) {
 					applicationId: applicationId,
 					deviceId: deviceId,
 					jsonData: jsonData
-				}, function() {
-					hooks.afterCreate.call(_this, type, jsonData, applicationId, deviceId)
+				}, function(err) {
+					hooks.afterCreate.call(_this, err, type, jsonData, applicationId, deviceId)
 				})
 			})
 		}
 	}
 
-	for (var base in EVENTS) {
-		var events = EVENTS[base]
+	forEach(EVENTS, function (events, base) {
 		var obj = eventLog[base] = {}
 		events.forEach(function(event) {
 			obj[event] = function(jsonData, applicationId, deviceId) {
 				return eventLog.create(startCase(base + " " + event), jsonData, applicationId, deviceId)
 			}
 		})
-	}
+	})
 
 	return eventLog
 }

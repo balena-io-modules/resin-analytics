@@ -22,6 +22,9 @@ var eventLogger = EventLog(MIXPANEL_TOKEN, 'Subsystem - UI, CLI, etc.', {
 		if (type === 'User Logout') {
 			this.end()
 		}
+	},
+	createError: function (error) {
+		console.error(error)
 	}
 })
 
@@ -40,5 +43,5 @@ eventLoger.user.login()
 
 ```javascript
 beforeCreate = function (type, jsonData, applicationId, deviceId, callback) { return callback() } 
-afterCreate = function (type, jsonData, applicationId, deviceId) {} 
+afterCreate = function (error, type, jsonData, applicationId, deviceId) {}
 ```
