@@ -1,4 +1,5 @@
 * Convert to JS
+* **Breaking!** The `afterCreate` now receives `error` as the first argument
 
 ## 0.1.1
 
