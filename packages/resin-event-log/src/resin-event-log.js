@@ -1,8 +1,9 @@
-var ResinMixpanelClient = require('resin-mixpanel-client')
+var Promise = require('bluebird')
 var assign = require('lodash/assign')
 var pick = require('lodash/pick')
 var keys = require('lodash/keys')
 var startCase = require('lodash/startCase')
+
 
 var EVENTS = {
 	user: [ 'login', 'logout', 'signup', 'passwordCreate', 'passwordEdit', 'emailEdit' ],
@@ -20,12 +21,16 @@ var DEFAULT_HOOKS = {
 	afterCreate: function(error, type, jsonData, applicationId, deviceId) {}
 }
 
+var ADAPTORS = [
+	require('./adaptors/mixpanel')
+]
+
 module.exports = function(options) {
 	options = options || {}
-	var mixpanelToken = options.mixpanelToken,
-		prefix = options.prefix
-	if (!mixpanelToken || !prefix) {
-		throw Error('mixpanelToken and prefix are required.')
+	var prefix = options.prefix,
+		debug = options.debug
+	if (!prefix) {
+		throw Error('`prefix` is required.')
 	}
 
 	var hooks = assign(
@@ -34,24 +39,21 @@ module.exports = function(options) {
 		pick(options, keys(DEFAULT_HOOKS))
 	)
 
-	var mixpanel = ResinMixpanelClient(mixpanelToken)
+	var adaptors = ADAPTORS.map(function (adaptorFactory) {
+		return adaptorFactory(options)
+	}).filter(function (adaptor) {
+		// Skip the adaptors that did not init (due to missing config options)
+		return !!adaptor
+	})
 
-	var getMixpanelUser = function(userData) {
-		var mixpanelUser = assign({
-			'$email': userData.email,
-			'$name': userData.username
-		}, userData)
-		return pick(mixpanelUser, [
-			'$email',
-			'$name',
-			'$created',
-			'hasPasswordSet',
-			'iat',
-			'id',
-			'permissions',
-			'public_key',
-			'username'
-		])
+	function runForAllAdaptors(methodName, args, callback) {
+		return Promise.all(
+			adaptors.map(function (adaptor) {
+				return adaptor[methodName]
+					? adaptor[methodName].apply(adaptor, args)
+					: null
+			})
+		).asCallback(callback)
 	}
 
 	var eventLog = {
@@ -59,38 +61,62 @@ module.exports = function(options) {
 		prefix: prefix,
 		start: function(user, callback) {
 			if (!user) {
-				throw Error('user is required to start events interaction.')
+				return callback(new Error(
+					'user is required to start events interaction.'
+				))
 			}
 
 			this.userId = user.id
-			var mixpanelUser = getMixpanelUser(user)
-			var login = function() {
-				return mixpanel.login(user.username, function() {
-					return mixpanel.setUserOnce(mixpanelUser, callback)
-				})
-			}
-			if (mixpanelUser.$created) {
-				return mixpanel.signup(user.username, function() {
-					return login()
-				})
-			}
-			return login()
+
+			return runForAllAdaptors('login', [ user ], callback)
 		},
 		end: function(callback) {
 			this.userId = null
-			return mixpanel.logout(callback)
+			return runForAllAdaptors('logout', [], callback)
 		},
-		create: function(type, jsonData, applicationId, deviceId) {
+		create: function(type, jsonData, applicationId, deviceId, callback) {
 			var _this = this
-			hooks.beforeCreate.call(this, type, jsonData, applicationId, deviceId, function() {
-				return mixpanel.track("[" + _this.prefix + "] " + type, {
-					applicationId: applicationId,
-					deviceId: deviceId,
-					jsonData: jsonData
-				}, function(err) {
-					hooks.afterCreate.call(_this, err, type, jsonData, applicationId, deviceId)
+
+			function runBeforeHook() {
+				return Promise.fromCallback(function(callback) {
+					hooks.beforeCreate.call(_this, type, jsonData, applicationId, deviceId, callback)
+				}).catch(function (err) {
+					// discard the hook error
+					if (debug) {
+						console.warn("`beforeCreate` error", err)
+					}
 				})
-			})
+			}
+
+			function runAfterHook(err) {
+				return Promise.try(function() {
+					hooks.afterCreate.call(_this, err, type, jsonData, applicationId, deviceId)
+				}).catch(function (err) {
+					// discard the hook error
+					if (debug) {
+						console.warn("`afterCreate` error", err)
+					}
+				})
+ 			}
+
+			return runBeforeHook()
+				.then(function() {
+					return runForAllAdaptors('track', [
+						"[" + _this.prefix + "] " + type,
+						{
+							applicationId: applicationId,
+							deviceId: deviceId,
+							jsonData: jsonData
+						}
+					])
+				}).catch(function (err) {
+					// catch the tracking error and call the hook
+					runAfterHook(err)
+					// rethrow the error to not call the hook for the second time in the next `.then`
+					throw err
+				}).then(function () {
+					return runAfterHook()
+				}).asCallback(callback)
 		}
 	}
 
