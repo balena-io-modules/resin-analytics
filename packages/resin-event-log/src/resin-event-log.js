@@ -1,5 +1,4 @@
 var ResinMixpanelClient = require('resin-mixpanel-client')
-var forEach = require('lodash/forEach')
 var assign = require('lodash/assign')
 var pick = require('lodash/pick')
 var keys = require('lodash/keys')
@@ -14,7 +13,7 @@ var EVENTS = {
 	deviceEnvironmentVariable: [ 'create', 'edit', 'delete' ]
 }
 
-var HOOKS = {
+var DEFAULT_HOOKS = {
 	beforeCreate: function(type, jsonData, applicationId, deviceId, callback) {
 		return callback()
 	},
@@ -31,8 +30,8 @@ module.exports = function(options) {
 
 	var hooks = assign(
 		{},
-		HOOKS,
-		pick(options, keys(HOOKS))
+		DEFAULT_HOOKS,
+		pick(options, keys(DEFAULT_HOOKS))
 	)
 
 	var mixpanel = ResinMixpanelClient(mixpanelToken)
@@ -95,7 +94,8 @@ module.exports = function(options) {
 		}
 	}
 
-	forEach(EVENTS, function (events, base) {
+	keys(EVENTS).forEach(function (base) {
+		var events = EVENTS[base]
 		var obj = eventLog[base] = {}
 		events.forEach(function(event) {
 			obj[event] = function(jsonData, applicationId, deviceId) {
