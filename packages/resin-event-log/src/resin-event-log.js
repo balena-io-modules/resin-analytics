@@ -22,6 +22,7 @@ var DEFAULT_HOOKS = {
 }
 
 var ADAPTORS = [
+	require('./adaptors/ga'),
 	require('./adaptors/mixpanel')
 ]
 
@@ -61,9 +62,9 @@ module.exports = function(options) {
 		prefix: prefix,
 		start: function(user, callback) {
 			if (!user) {
-				return callback(new Error(
+				return Promise.reject(new Error(
 					'user is required to start events interaction.'
-				))
+				)).asCallback(callback)
 			}
 
 			this.userId = user.id
@@ -102,8 +103,7 @@ module.exports = function(options) {
 			return runBeforeHook()
 				.then(function() {
 					return runForAllAdaptors('track', [
-						"[" + _this.prefix + "] " + type,
-						{
+						_this.prefix, type, {
 							applicationId: applicationId,
 							deviceId: deviceId,
 							jsonData: jsonData

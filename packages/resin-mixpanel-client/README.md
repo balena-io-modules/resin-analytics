@@ -13,23 +13,25 @@ $ npm install resin-mixpanel-client
 ```javascript
 var MixpanelClient = require('resin-mixpanel-client')
 
-if (eventType is 'signup') {
-	MixpanelClient.signup(userId, function () { /* optional callback */ })
+if (eventType === 'signup') {
+	MixpanelClient.signup(userId)
 }
 
-if (eventType is 'login') {
-	MixpanelClient.login(userId, function () { })
+if (eventType === 'login') {
+	MixpanelClient.login(userId)
 }
 
-MixpanelClient.set(props, function () { })
-MixpanelClient.setOnce(props, function () { })
+MixpanelClient.set(props)
+MixpanelClient.setOnce(props)
 
-MixpanelClient.setUser(props, to, function () { })
-MixpanelClient.setUserOnce(props, to, function () { })
+MixpanelClient.setUser(props)
+MixpanelClient.setUserOnce(props)
 
-MixpanelClient.track(eventName, properties, function () { })
+MixpanelClient.track(eventName, props)
 
 if (eventType is 'logout') {
-	MixpanelClient.logout(function () { })
+	MixpanelClient.logout()
 }
 ```
+
+ALl methods return Promises.

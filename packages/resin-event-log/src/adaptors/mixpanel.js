@@ -1,4 +1,3 @@
-var Promise = require('bluebird')
 var assign = require('lodash/assign')
 var pick = require('lodash/pick')
 
@@ -28,7 +27,7 @@ module.exports = function (options) {
 
 	if (!token) {
 		if (debug) {
-			console.warn("`mixpanelToken` is not set, mixpanel tracking is didabled")
+			console.warn("`mixpanelToken` is not set, Mixpanel tracking is disabled")
 		}
 		return null
 	}
@@ -38,33 +37,18 @@ module.exports = function (options) {
 	return {
 		login: function(user) {
 			var mixpanelUser = getMixpanelUser(user)
+			var methodName = mixpanelUser.$created ? 'signup' : 'login'
 
-			return Promise.fromCallback(function (callback) {
-				var login = function() {
-					mixpanel.login(user.username, function() {
-						mixpanel.setUserOnce(mixpanelUser, callback)
-					})
-				}
-
-				if (mixpanelUser.$created) {
-					mixpanel.signup(user.username, function() {
-						login()
-					})
-				} else {
-					login()
-				}
-
-			})
+			return mixpanel[methodName](user.username)
+				.then(function() {
+					return mixpanel.setUserOnce(mixpanelUser)
+				})
 		},
 		logout: function() {
-			return Promise.fromCallback(function (callback) {
-				mixpanel.logout(callback)
-			})
+			return mixpanel.logout()
 		},
-		track: function (type, data) {
-			return Promise.fromCallback(function (callback) {
-				mixpanel.track(type, data, callback)
-			})
+		track: function (prefix, type, data) {
+			return mixpanel.track("[" + prefix + "] " + type, data)
 		}
 	}
 }
