@@ -22,6 +22,7 @@ var DEFAULT_HOOKS = {
 }
 
 var ADAPTORS = [
+	require('./adaptors/ga'),
 	require('./adaptors/mixpanel')
 ]
 
@@ -102,8 +103,7 @@ module.exports = function(options) {
 			return runBeforeHook()
 				.then(function() {
 					return runForAllAdaptors('track', [
-						"[" + _this.prefix + "] " + type,
-						{
+						_this.prefix, type, {
 							applicationId: applicationId,
 							deviceId: deviceId,
 							jsonData: jsonData

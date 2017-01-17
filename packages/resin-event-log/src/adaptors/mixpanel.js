@@ -28,7 +28,7 @@ module.exports = function (options) {
 
 	if (!token) {
 		if (debug) {
-			console.warn("`mixpanelToken` is not set, mixpanel tracking is didabled")
+			console.warn("`mixpanelToken` is not set, Mixpanel tracking is disabled")
 		}
 		return null
 	}
@@ -61,9 +61,9 @@ module.exports = function (options) {
 				mixpanel.logout(callback)
 			})
 		},
-		track: function (type, data) {
+		track: function (prefix, type, data) {
 			return Promise.fromCallback(function (callback) {
-				mixpanel.track(type, data, callback)
+				mixpanel.track("[" + prefix + "] " + type, data, callback)
 			})
 		}
 	}
