@@ -10,9 +10,11 @@
     "resin-universal-ga": "^0.1.0"
   },
   "devDependencies": {
+    "browserify": "^13.3.0",
     "resin-lint": "^1.4.0"
   },
   "scripts": {
+    "bundle": "browserify src/resin-event-log.js -o build/bundle.js",
     "lint": "resin-lint src",
     "prepublish": "npm run lint"
   },
