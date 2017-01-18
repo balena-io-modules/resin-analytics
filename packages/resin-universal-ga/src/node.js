@@ -6,8 +6,7 @@ module.exports = function(propertyId, site) {
 	function createVisitor(userId) {
 		if (visitor) return visitor
 		return visitor = ua(propertyId, userId, {
-			strictCidFormat: false,
-			https: true
+			strictCidFormat: false
 		})
 	}
 	function destroyVisitor() {

@@ -26,7 +26,7 @@ module.exports = function (options) {
 			return gaClient.logout()
 		},
 		track: function (prefix, type, data) {
-			return gaClient.track(googleConfig.site, type, prefix)
+			return gaClient.track(site, type, prefix)
 		}
 	}
 }
