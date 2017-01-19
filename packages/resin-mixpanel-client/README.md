@@ -13,11 +13,11 @@ $ npm install resin-mixpanel-client
 ```javascript
 var MixpanelClient = require('resin-mixpanel-client')
 
-if (eventType is 'signup') {
+if (eventType === 'signup') {
 	MixpanelClient.signup(userId, function () { /* optional callback */ })
 }
 
-if (eventType is 'login') {
+if (eventType === 'login') {
 	MixpanelClient.login(userId, function () { })
 }
 
