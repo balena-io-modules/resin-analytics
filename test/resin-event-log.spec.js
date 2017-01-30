@@ -27,11 +27,11 @@ function validateMixpanelQuery(queryObject) {
 	}
 }
 
-function createMixpanelNock(endpoint, responseCode) {
+function createMixpanelNock(endpoint) {
 	return nock(MIXPANEL_HOST)
 		.get(endpoint)
 		.query(validateMixpanelQuery)
-		.reply(responseCode || 200, '1')
+		.reply(200, '1')
 }
 
 function validateGaBody(bodyString) {
@@ -61,9 +61,9 @@ function createGaNock(endpoint, responseCode) {
 }
 
 describe('ResinEventLog', function () {
-	describe.skip('mixpanel track', function () {
+	describe('mixpanel track', function () {
 		it('should make request to mixpanel and pass the token', function (done) {
-			var nockRequest = createMixpanelNock('/track', 201)
+			var nockRequest = createMixpanelNock('/track')
 
 			var eventLog = ResinEventLog({
 				mixpanelToken: MIXPANEL_TOKEN,
@@ -83,7 +83,7 @@ describe('ResinEventLog', function () {
 		})
 
 		it('should have semantic methods like device.rename that send requests to mixpanel', function (done) {
-			var nockRequest = createMixpanelNock('/track', 201)
+			var nockRequest = createMixpanelNock('/track')
 
 			var eventLog = ResinEventLog({
 				mixpanelToken: MIXPANEL_TOKEN,
