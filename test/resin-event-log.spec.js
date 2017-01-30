@@ -54,10 +54,10 @@ function validateGaBody(bodyString) {
 
 }
 
-function createGaNock(endpoint, responseCode) {
+function createGaNock(endpoint) {
 	return nock(GA_HOST)
 		.post(endpoint, validateGaBody)
-		.reply(responseCode || 200, '1')
+		.reply(200, '')
 }
 
 describe('ResinEventLog', function () {
@@ -105,7 +105,7 @@ describe('ResinEventLog', function () {
 
 	describe('GA track', function () {
 		it('should make request to GA', function (done) {
-			var nockRequest = createGaNock('/collect', 201)
+			var nockRequest = createGaNock('/collect')
 
 			var eventLog = ResinEventLog({
 				debug: true,
@@ -127,7 +127,7 @@ describe('ResinEventLog', function () {
 		})
 
 		it('should have semantic methods like device.rename that send requests to mixpanel', function (done) {
-			var nockRequest = createGaNock('/collect', 201)
+			var nockRequest = createGaNock('/collect')
 
 			var eventLog = ResinEventLog({
 				gaId: GA_ID,
