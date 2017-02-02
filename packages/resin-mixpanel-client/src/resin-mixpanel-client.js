@@ -6,7 +6,7 @@ module.exports = function(token) {
 	var userId = null
 	var isBrowser = typeof window !== 'undefined'
 
-	mixpanel.set_config({
+	mixpanel().set_config({
 		track_pageview: false
 	})
 
@@ -25,15 +25,15 @@ module.exports = function(token) {
 	return {
 		signup: function(uid, callback) {
 			if (isBrowser) {
-				mixpanel.alias(uid, uid)
+				mixpanel().alias(uid, uid)
 				if (typeof callback === "function") callback()
 			} else {
-				return mixpanel.alias(uid, uid, callback)
+				return mixpanel().alias(uid, uid, callback)
 			}
 		},
 		login: function(uid, callback) {
 			if (isBrowser) {
-				mixpanel.identify(uid)
+				mixpanel().identify(uid)
 			}
 			userId = uid
 			if (typeof callback === "function") callback()
@@ -41,7 +41,7 @@ module.exports = function(token) {
 		logout: function(callback) {
 			var ref
 			if (isBrowser) {
-				if ((ref = mixpanel.cookie) != null) {
+				if ((ref = mixpanel().cookie) != null) {
 					ref.clear()
 				}
 			}
@@ -50,14 +50,14 @@ module.exports = function(token) {
 		},
 		set: function(props, callback) {
 			if (isBrowser) {
-				mixpanel.register(props)
+				mixpanel().register(props)
 			}
 
 			if (typeof callback === "function") callback()
 		},
 		setOnce: function(props, callback) {
 			if (isBrowser) {
-				mixpanel.register_once(props)
+				mixpanel().register_once(props)
 			}
 
 			if (typeof callback === "function") callback()
@@ -65,23 +65,23 @@ module.exports = function(token) {
 		setUser: function(prop, to, callback) {
 			if (isBrowser) {
 				callback = wrapCallback(callback)
-				return mixpanel.people.set(prop, to, callback)
+				return mixpanel().people.set(prop, to, callback)
 			} else {
 				if (!userId) {
 					throw new Error('(Resin Mixpanel Client) Please login() before using setUser()')
 				}
-				return mixpanel.people.set(userId, prop, to, callback)
+				return mixpanel().people.set(userId, prop, to, callback)
 			}
 		},
 		setUserOnce: function(prop, to, callback) {
 			if (isBrowser) {
 				callback = wrapCallback(callback)
-				return mixpanel.people.set_once(prop, to, callback)
+				return mixpanel().people.set_once(prop, to, callback)
 			} else {
 				if (!userId) {
 					throw new Error('(Resin Mixpanel Client) Please login() before using setUserOnce()')
 				}
-				return mixpanel.people.set_once(userId, prop, to, callback)
+				return mixpanel().people.set_once(userId, prop, to, callback)
 			}
 		},
 		track: function(event, properties, callback) {
@@ -90,7 +90,7 @@ module.exports = function(token) {
 			} else {
 				properties.distinct_id = userId
 			}
-			return mixpanel.track(event, properties, callback)
+			return mixpanel().track(event, properties, callback)
 		}
 	}
 

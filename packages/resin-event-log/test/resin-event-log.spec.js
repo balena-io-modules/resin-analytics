@@ -72,6 +72,8 @@ function createGaNock(endpoint) {
 }
 
 describe('ResinEventLog', function () {
+	this.timeout(0)
+
 	before(function() {
 		mock.init()
 	})
@@ -83,7 +85,7 @@ describe('ResinEventLog', function () {
 	})
 
 	describe('Mixpanel track', function () {
-		before(function() {
+		beforeEach(function() {
 			createMixpanelNock({
 				endpoint: '/decide',
 				filterQuery: null,
@@ -92,7 +94,7 @@ describe('ResinEventLog', function () {
 		})
 
 		it('should make request to Mixpanel and pass the token', function (done) {
-			var nockRequest = createMixpanelNock({ endpoint: '/track' })
+			var mockedRequest = createMixpanelNock({ endpoint: '/track' })
 
 			var eventLog = ResinEventLog({
 				mixpanelToken: MIXPANEL_TOKEN,
@@ -102,7 +104,7 @@ describe('ResinEventLog', function () {
 						console.error('Mixpanel error:', err)
 					}
 					expect(!err).to.be.ok
-					expect(nockRequest.isDone()).to.be.ok
+					expect(mockedRequest.isDone()).to.be.ok
 					expect(type).to.be.equal('x')
 					done()
 				}
@@ -112,7 +114,7 @@ describe('ResinEventLog', function () {
 		})
 
 		it('should have semantic methods like device.rename that send requests to mixpanel', function (done) {
-			var nockRequest = createMixpanelNock({ endpoint: '/track' })
+			var mockedRequest = createMixpanelNock({ endpoint: '/track' })
 
 			var eventLog = ResinEventLog({
 				mixpanelToken: MIXPANEL_TOKEN,
@@ -122,8 +124,7 @@ describe('ResinEventLog', function () {
 						console.error('Mixpanel error:', err)
 					}
 					expect(!err).to.be.ok
-					debugger
-					expect(nockRequest.isDone()).to.be.ok
+					expect(mockedRequest.isDone()).to.be.ok
 					expect(type).to.be.equal('Device Rename')
 					done()
 				}
@@ -135,7 +136,7 @@ describe('ResinEventLog', function () {
 
 	describe.skip('GA track', function () {
 		it('should make request to GA', function (done) {
-			var nockRequest = createGaNock('/collect')
+			var mockedRequest = createGaNock('/collect')
 
 			var eventLog = ResinEventLog({
 				debug: true,
@@ -147,7 +148,7 @@ describe('ResinEventLog', function () {
 						console.error('GA error:', err)
 					}
 					expect(!err).to.be.ok
-					expect(nockRequest.isDone()).to.be.ok
+					expect(mockedRequest.isDone()).to.be.ok
 					expect(type).to.be.equal('x')
 					done()
 				}
@@ -157,7 +158,7 @@ describe('ResinEventLog', function () {
 		})
 
 		it('should have semantic methods like device.rename that send requests to mixpanel', function (done) {
-			var nockRequest = createGaNock('/collect')
+			var mockedRequest = createGaNock('/collect')
 
 			var eventLog = ResinEventLog({
 				gaId: GA_ID,
@@ -168,7 +169,7 @@ describe('ResinEventLog', function () {
 						console.error('GA error:', err)
 					}
 					expect(!err).to.be.ok
-					expect(nockRequest.isDone()).to.be.ok
+					expect(mockedRequest.isDone()).to.be.ok
 					expect(type).to.be.equal('Device Rename')
 					done()
 				}
