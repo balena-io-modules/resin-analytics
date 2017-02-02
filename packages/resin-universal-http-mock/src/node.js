@@ -8,6 +8,9 @@ module.exports = {
 	teardown: function () {
 
 	},
+	reset: function () {
+
+	},
 	create: function (options) {
 		options = _.defaults(options, { method: 'get' })
 

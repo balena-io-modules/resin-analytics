@@ -4,7 +4,6 @@ var base64Decode = require('base-64').decode
 var querystring = require('querystring')
 
 var mock = require('resin-universal-http-mock')
-mock.init()
 
 if (typeof window !== 'undefined') {
 	window.MIXPANEL_CUSTOM_LIB_URL = 'http://cdn.mxpnl.com/libs/mixpanel-2-latest.js'
@@ -73,6 +72,12 @@ function createGaNock(endpoint) {
 }
 
 describe('ResinEventLog', function () {
+	before(function() {
+		mock.init()
+	})
+	afterEach(function() {
+		mock.reset()
+	})
 	after(function() {
 		mock.teardown()
 	})
@@ -117,6 +122,7 @@ describe('ResinEventLog', function () {
 						console.error('Mixpanel error:', err)
 					}
 					expect(!err).to.be.ok
+					debugger
 					expect(nockRequest.isDone()).to.be.ok
 					expect(type).to.be.equal('Device Rename')
 					done()

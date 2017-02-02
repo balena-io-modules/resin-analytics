@@ -8,6 +8,9 @@ module.exports = {
 	teardown: function () {
 		xhrMock.teardown()
 	},
+	reset: function () {
+		xhrMock.reset()
+	},
 	create: function (options) {
 		options = _.defaults(options, { method: 'get' })
 
