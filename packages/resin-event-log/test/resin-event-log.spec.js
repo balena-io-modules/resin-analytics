@@ -6,6 +6,10 @@ var querystring = require('querystring')
 var mock = require('resin-universal-http-mock')
 mock.init()
 
+if (typeof window !== 'undefined') {
+	window.MIXPANEL_CUSTOM_LIB_URL = 'http://cdn.mxpnl.com/libs/mixpanel-2-latest.js'
+}
+
 var ResinEventLog = require('..')
 
 var MIXPANEL_TOKEN = 'MIXPANEL_TOKEN'
@@ -75,7 +79,11 @@ describe('ResinEventLog', function () {
 
 	describe('Mixpanel track', function () {
 		before(function() {
-			createMixpanelNock({ endpoint: '/decide', filterQuery: null })
+			createMixpanelNock({
+				endpoint: '/decide',
+				filterQuery: null,
+				response: JSON.stringify({"notifications":[],"config":{"enable_collect_everything":false}})
+			})
 		})
 
 		it('should make request to Mixpanel and pass the token', function (done) {

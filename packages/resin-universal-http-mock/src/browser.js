@@ -19,7 +19,6 @@ module.exports = {
 		}
 
 		function reqMatches(req) {
-			debugger
 			if (options.filterQuery) {
 				if (!options.filterQuery(req.query())) {
 					return false
@@ -34,7 +33,6 @@ module.exports = {
 		}
 
 		function responder(req, res) {
-			debugger
 			if (!reqMatches(req)) {
 				return
 			}

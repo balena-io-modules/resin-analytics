@@ -10,6 +10,18 @@ module.exports = function(token) {
 		track_pageview: false
 	})
 
+	// the browser mixpanel library calls the callback with the response object (in verbose mode)
+	// or the status 0/1 in non-verbose mode
+	// we normalize it here to match the node style and work with Promise.fromCallback
+	function wrapCallback(callback) {
+		if (!callback) return null
+		return function(response) {
+			if (response === 0) return callback(new Error('Mixpanel error'))
+			if (response.error) return callback(response.error)
+			callback(null, response)
+		}
+	}
+
 	return {
 		signup: function(uid, callback) {
 			if (isBrowser) {
@@ -52,6 +64,7 @@ module.exports = function(token) {
 		},
 		setUser: function(prop, to, callback) {
 			if (isBrowser) {
+				callback = wrapCallback(callback)
 				return mixpanel.people.set(prop, to, callback)
 			} else {
 				if (!userId) {
@@ -62,6 +75,7 @@ module.exports = function(token) {
 		},
 		setUserOnce: function(prop, to, callback) {
 			if (isBrowser) {
+				callback = wrapCallback(callback)
 				return mixpanel.people.set_once(prop, to, callback)
 			} else {
 				if (!userId) {
@@ -71,7 +85,9 @@ module.exports = function(token) {
 			}
 		},
 		track: function(event, properties, callback) {
-			if (!isBrowser) {
+			if (isBrowser) {
+				callback = wrapCallback(callback)
+			} else {
 				properties.distinct_id = userId
 			}
 			return mixpanel.track(event, properties, callback)
