@@ -4,8 +4,7 @@
   "description": "",
   "main": "src/resin-mixpanel-client.js",
   "scripts": {
-    "lint": "resin-lint src",
-    "prepublish": "npm run lint"
+    "lint": "resin-lint src"
   },
   "dependencies": {
     "resin-universal-mixpanel": "^0.1.0"

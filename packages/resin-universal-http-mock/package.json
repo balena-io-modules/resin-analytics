@@ -1,0 +1,15 @@
+{
+  "name": "resin-universal-http-mock",
+  "version": "1.0.0",
+  "description": "Mocks the `http` / `https` in Node.js and the `XHR` in the browser",
+  "main": "src/node.js",
+  "browser": "src/browser.js",
+  "keywords": [],
+  "author": "Eugene Mirotin <eugene@resin.io>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "nock": "^9.0.2",
+    "xhr-mock": "resin-io-modules/xhr-mock#improvements"
+  }
+}
