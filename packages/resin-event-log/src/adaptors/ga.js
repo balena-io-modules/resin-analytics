@@ -1,6 +1,4 @@
 var Promise = require('bluebird')
-var assign = require('lodash/assign')
-var pick = require('lodash/pick')
 
 var ResinGaClient = require('resin-universal-ga')
 

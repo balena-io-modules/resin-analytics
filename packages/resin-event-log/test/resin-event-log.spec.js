@@ -72,7 +72,8 @@ function createGaNock(endpoint) {
 }
 
 describe('ResinEventLog', function () {
-	this.timeout(0)
+	// TODO: DEBUG!
+	// this.timeout(0)
 
 	before(function() {
 		mock.init()
@@ -84,7 +85,7 @@ describe('ResinEventLog', function () {
 		mock.teardown()
 	})
 
-	describe('Mixpanel track', function () {
+	describe.skip('Mixpanel track', function () {
 		beforeEach(function() {
 			createMixpanelNock({
 				endpoint: '/decide',
@@ -134,7 +135,7 @@ describe('ResinEventLog', function () {
 		})
 	})
 
-	describe.skip('GA track', function () {
+	describe('GA track', function () {
 		it('should make request to GA', function (done) {
 			var mockedRequest = createGaNock('/collect')
 
