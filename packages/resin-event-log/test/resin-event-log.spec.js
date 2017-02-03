@@ -5,8 +5,11 @@ var querystring = require('querystring')
 
 var mock = require('resin-universal-http-mock')
 
-if (typeof window !== 'undefined') {
+var IS_BROWSER = typeof window !== 'undefined'
+
+if (IS_BROWSER) {
 	window.MIXPANEL_CUSTOM_LIB_URL = 'http://cdn.mxpnl.com/libs/mixpanel-2-latest.js'
+	window.GA_CUSTOM_LIB_URL = 'https://www.google-analytics.com/analytics_debug.js'
 }
 
 var ResinEventLog = require('..')
@@ -14,9 +17,12 @@ var ResinEventLog = require('..')
 var MIXPANEL_TOKEN = 'MIXPANEL_TOKEN'
 var SYSTEM = 'TEST'
 var MIXPANEL_HOST = 'http://api.mixpanel.com'
-var GA_ID = 'GOOGLE_ID'
+var GA_ID = 'UA-123456-0'
 var GA_SITE = 'resintest.io'
-var GA_HOST = 'http://www.google-analytics.com'
+var GA_HOST = 'https://www.google-analytics.com'
+var FAKE_USER = {
+	id: 123
+}
 
 function validateMixpanelQuery(queryObject) {
 	var data = queryObject.data
@@ -71,9 +77,13 @@ function createGaNock(endpoint) {
 	})
 }
 
+var waitForGa =  function (callback) {
+	setTimeout(callback, IS_BROWSER ? 1000 : 0)
+}
+
 describe('ResinEventLog', function () {
 	// TODO: DEBUG!
-	// this.timeout(0)
+	this.timeout(0)
 
 	before(function() {
 		mock.init()
@@ -100,6 +110,7 @@ describe('ResinEventLog', function () {
 			var eventLog = ResinEventLog({
 				mixpanelToken: MIXPANEL_TOKEN,
 				prefix: SYSTEM,
+				debug: true,
 				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
 					if (err) {
 						console.error('Mixpanel error:', err)
@@ -111,7 +122,9 @@ describe('ResinEventLog', function () {
 				}
 			})
 
-			eventLog.create('x')
+			eventLog.start(FAKE_USER).then(function () {
+				eventLog.create('x')
+			})
 		})
 
 		it('should have semantic methods like device.rename that send requests to mixpanel', function (done) {
@@ -120,6 +133,7 @@ describe('ResinEventLog', function () {
 			var eventLog = ResinEventLog({
 				mixpanelToken: MIXPANEL_TOKEN,
 				prefix: SYSTEM,
+				debug: true,
 				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
 					if (err) {
 						console.error('Mixpanel error:', err)
@@ -131,7 +145,9 @@ describe('ResinEventLog', function () {
 				}
 			})
 
-			eventLog.device.rename()
+			eventLog.start(FAKE_USER).then(function () {
+				eventLog.device.rename()
+			})
 		})
 	})
 
@@ -140,22 +156,26 @@ describe('ResinEventLog', function () {
 			var mockedRequest = createGaNock('/collect')
 
 			var eventLog = ResinEventLog({
-				debug: true,
 				gaId: GA_ID,
 				gaSite: GA_SITE,
 				prefix: SYSTEM,
+				debug: true,
 				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
 					if (err) {
 						console.error('GA error:', err)
 					}
 					expect(!err).to.be.ok
-					expect(mockedRequest.isDone()).to.be.ok
 					expect(type).to.be.equal('x')
-					done()
+					waitForGa(function() {
+						expect(mockedRequest.isDone()).to.be.ok
+						done()
+					})
 				}
 			})
 
-			eventLog.create('x')
+			eventLog.start(FAKE_USER).then(function () {
+				eventLog.create('x')
+			})
 		})
 
 		it('should have semantic methods like device.rename that send requests to mixpanel', function (done) {
@@ -165,18 +185,23 @@ describe('ResinEventLog', function () {
 				gaId: GA_ID,
 				gaSite: GA_SITE,
 				prefix: SYSTEM,
+				debug: true,
 				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
 					if (err) {
 						console.error('GA error:', err)
 					}
 					expect(!err).to.be.ok
-					expect(mockedRequest.isDone()).to.be.ok
 					expect(type).to.be.equal('Device Rename')
-					done()
+					waitForGa(function() {
+						expect(mockedRequest.isDone()).to.be.ok
+						done()
+					})
 				}
 			})
 
-			eventLog.device.rename()
+			eventLog.start(FAKE_USER).then(function () {
+				eventLog.device.rename()
+			})
 		})
 	})
 })

@@ -62,9 +62,9 @@ module.exports = function(options) {
 		prefix: prefix,
 		start: function(user, callback) {
 			if (!user) {
-				return callback(new Error(
+				return Promise.reject(new Error(
 					'user is required to start events interaction.'
-				))
+				)).asCallback(callback)
 			}
 
 			this.userId = user.id

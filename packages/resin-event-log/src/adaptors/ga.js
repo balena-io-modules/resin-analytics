@@ -14,7 +14,7 @@ module.exports = function (options) {
 		return null
 	}
 
-	var gaClient = ResinGaClient(propertyId, site)
+	var gaClient = ResinGaClient(propertyId, site, debug)
 
 	return {
 		login: function(user) {

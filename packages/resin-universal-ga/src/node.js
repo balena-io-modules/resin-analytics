@@ -1,13 +1,17 @@
 var Promise = require('bluebird')
 var ua = require('universal-analytics')
 
-module.exports = function(propertyId, site) {
+module.exports = function(propertyId, site, debug) {
 	var visitor = null
 	function createVisitor(userId) {
 		if (visitor) return visitor
 		return visitor = ua(propertyId, userId, {
-			strictCidFormat: false
+			strictCidFormat: false,
+			https: true
 		})
+		if (debug) {
+			visitor = visitor.debug()
+		}
 	}
 	function destroyVisitor() {
 		visitor = null
