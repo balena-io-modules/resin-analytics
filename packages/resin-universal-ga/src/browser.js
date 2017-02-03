@@ -1,3 +1,5 @@
+var Promise = require('bluebird')
+
 require('./ga-loader')
 
 // var ga = window.ga
@@ -16,8 +18,11 @@ module.exports = function (propertyId, site, debug) {
 			window.ga('create', propertyId, site, TRACKER_NAME, options)
 		},
 		logout: function () {
-			window.ga(function() {
-				window.ga.remove(TRACKER_NAME)
+			return Promise.fromCallback(function (callback) {
+				window.ga(function() {
+					window.ga.remove(TRACKER_NAME)
+					callback()
+				})
 			})
 		},
 		track: function (category, action, label) {

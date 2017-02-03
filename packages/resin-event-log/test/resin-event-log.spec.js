@@ -152,10 +152,16 @@ describe('ResinEventLog', function () {
 	})
 
 	describe('GA track', function () {
+		var eventLog
+
+		afterEach(function() {
+			return eventLog.end()
+		})
+
 		it('should make request to GA', function (done) {
 			var mockedRequest = createGaNock('/collect')
 
-			var eventLog = ResinEventLog({
+			eventLog = ResinEventLog({
 				gaId: GA_ID,
 				gaSite: GA_SITE,
 				prefix: SYSTEM,
@@ -181,7 +187,7 @@ describe('ResinEventLog', function () {
 		it('should have semantic methods like device.rename that send requests to mixpanel', function (done) {
 			var mockedRequest = createGaNock('/collect')
 
-			var eventLog = ResinEventLog({
+			eventLog = ResinEventLog({
 				gaId: GA_ID,
 				gaSite: GA_SITE,
 				prefix: SYSTEM,
