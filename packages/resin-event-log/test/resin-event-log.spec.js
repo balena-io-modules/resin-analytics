@@ -9,7 +9,7 @@ var IS_BROWSER = typeof window !== 'undefined'
 
 if (IS_BROWSER) {
 	window.MIXPANEL_CUSTOM_LIB_URL = 'http://cdn.mxpnl.com/libs/mixpanel-2-latest.js'
-	window.GA_CUSTOM_LIB_URL = 'https://www.google-analytics.com/analytics_debug.js'
+	// window.GA_CUSTOM_LIB_URL = 'https://www.google-analytics.com/analytics_debug.js'
 }
 
 var ResinEventLog = require('..')
@@ -173,6 +173,7 @@ describe('ResinEventLog', function () {
 					expect(!err).to.be.ok
 					expect(type).to.be.equal('x')
 					waitForGa(function() {
+						console.log('CHECK GA CALLBACK')
 						expect(mockedRequest.isDone()).to.be.ok
 						done()
 					})
@@ -199,6 +200,7 @@ describe('ResinEventLog', function () {
 					expect(!err).to.be.ok
 					expect(type).to.be.equal('Device Rename')
 					waitForGa(function() {
+						console.log('CHECK GA CALLBACK')
 						expect(mockedRequest.isDone()).to.be.ok
 						done()
 					})

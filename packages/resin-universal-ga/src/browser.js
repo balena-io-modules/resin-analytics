@@ -26,13 +26,22 @@ module.exports = function (propertyId, site, debug) {
 			})
 		},
 		track: function (category, action, label) {
-			window.ga(
-				TRACKER_NAME + '.send', 'event',
-				category, action, label,
-				debug
-					? { transport: 'xhr' }
-					: null
-			)
+			return Promise.fromCallback(function (callback) {
+				var options = {
+					hitCallback: function() {
+						console.log('DONE HIT')
+						callback()
+					}
+				}
+				if (debug) {
+					options.transport = 'xhr'
+				}
+				window.ga(
+					TRACKER_NAME + '.send', 'event',
+					category, action, label,
+					options
+				)
+			})
 		}
 	}
 }

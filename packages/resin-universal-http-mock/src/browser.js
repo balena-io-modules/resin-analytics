@@ -36,10 +36,12 @@ module.exports = {
 		}
 
 		function responder(req, res) {
+			console.log('XHR MOCK: DOING', req.url())
 			if (!reqMatches(req)) {
 				return
 			}
 			isDone = true
+			console.log('XHR MOCK DONE')
 			return res
 				.status(options.statusCode || 200)
 				.body(options.response || '')
