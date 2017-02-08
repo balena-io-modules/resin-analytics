@@ -68,7 +68,7 @@ function validateGaBody(bodyString) {
 	}
 }
 
-function createGaNock(endpoint) {
+function createOneGaNock(endpoint) {
 	return mock.create({
 		host: GA_HOST,
 		endpoint: endpoint,
@@ -77,8 +77,18 @@ function createGaNock(endpoint) {
 	})
 }
 
-var waitForGa =  function (callback) {
-	setTimeout(callback, IS_BROWSER ? 1000 : 0)
+function createGaNock(endpoint) {
+	var mocks = [
+		createOneGaNock(endpoint),
+		createOneGaNock('/r' + endpoint)
+	]
+	return {
+		isDone: function() {
+			return _.some(mocks, function(mock) {
+				return mock.isDone()
+			})
+		}
+	}
 }
 
 describe('ResinEventLog', function () {
@@ -95,7 +105,7 @@ describe('ResinEventLog', function () {
 		mock.teardown()
 	})
 
-	describe.skip('Mixpanel track', function () {
+	describe('Mixpanel track', function () {
 		beforeEach(function() {
 			createMixpanelNock({
 				endpoint: '/decide',
@@ -172,11 +182,8 @@ describe('ResinEventLog', function () {
 					}
 					expect(!err).to.be.ok
 					expect(type).to.be.equal('x')
-					waitForGa(function() {
-						console.log('CHECK GA CALLBACK')
-						expect(mockedRequest.isDone()).to.be.ok
-						done()
-					})
+					expect(mockedRequest.isDone()).to.be.ok
+					done()
 				}
 			})
 
@@ -199,11 +206,8 @@ describe('ResinEventLog', function () {
 					}
 					expect(!err).to.be.ok
 					expect(type).to.be.equal('Device Rename')
-					waitForGa(function() {
-						console.log('CHECK GA CALLBACK')
-						expect(mockedRequest.isDone()).to.be.ok
-						done()
-					})
+					expect(mockedRequest.isDone()).to.be.ok
+					done()
 				}
 			})
 

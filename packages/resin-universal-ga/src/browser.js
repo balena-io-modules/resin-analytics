@@ -28,10 +28,7 @@ module.exports = function (propertyId, site, debug) {
 		track: function (category, action, label) {
 			return Promise.fromCallback(function (callback) {
 				var options = {
-					hitCallback: function() {
-						console.log('DONE HIT')
-						callback()
-					}
+					hitCallback: callback
 				}
 				if (debug) {
 					options.transport = 'xhr'
