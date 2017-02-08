@@ -95,6 +95,8 @@ function createGaMock(endpoint) {
 }
 
 describe('ResinEventLog', function () {
+	this.timeout(0)
+
 	before(function() {
 		mock.init()
 	})
@@ -111,12 +113,12 @@ describe('ResinEventLog', function () {
 		beforeEach(function() {
 			createMixpanelMock({
 				endpoint: '/engage',
-				filterQuery: null
+				filterQuery: function() { return true }
 			})
 
 			createMixpanelMock({
 				endpoint: '/decide',
-				filterQuery: null,
+				filterQuery: function() { return true },
 				response: JSON.stringify({"notifications":[],"config":{"enable_collect_everything":false}})
 			})
 		})
