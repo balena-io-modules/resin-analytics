@@ -139,8 +139,8 @@ describe('ResinEventLog', function () {
 						console.error('Mixpanel error:', err)
 					}
 					expect(!err).to.be.ok
-					expect(mockedRequest.isDone()).to.be.ok
 					expect(type).to.be.equal('x')
+					expect(mockedRequest.isDone()).to.be.ok
 					done()
 				}
 			})
@@ -162,8 +162,8 @@ describe('ResinEventLog', function () {
 						console.error('Mixpanel error:', err)
 					}
 					expect(!err).to.be.ok
-					expect(mockedRequest.isDone()).to.be.ok
 					expect(type).to.be.equal('Device Rename')
+					expect(mockedRequest.isDone()).to.be.ok
 					done()
 				}
 			})
