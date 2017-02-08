@@ -21,7 +21,10 @@ var GA_ID = 'UA-123456-0'
 var GA_SITE = 'resintest.io'
 var GA_HOST = 'https://www.google-analytics.com'
 var FAKE_USER = {
-	id: 123
+	username: 'fake',
+	id: 123,
+	email: 'fake@example.com',
+	$created: new Date().toISOString()
 }
 
 function validateMixpanelQuery(queryObject) {
@@ -39,7 +42,7 @@ function validateMixpanelQuery(queryObject) {
 	}
 }
 
-function createMixpanelNock(options) {
+function createMixpanelMock(options) {
 	_.defaults(options, {
 		host: MIXPANEL_HOST,
 		method: 'GET',
@@ -68,7 +71,7 @@ function validateGaBody(bodyString) {
 	}
 }
 
-function createOneGaNock(endpoint) {
+function createOneGaMock(endpoint) {
 	return mock.create({
 		host: GA_HOST,
 		endpoint: endpoint,
@@ -77,10 +80,10 @@ function createOneGaNock(endpoint) {
 	})
 }
 
-function createGaNock(endpoint) {
+function createGaMock(endpoint) {
 	var mocks = [
-		createOneGaNock(endpoint),
-		createOneGaNock('/r' + endpoint)
+		createOneGaMock(endpoint),
+		createOneGaMock('/r' + endpoint)
 	]
 	return {
 		isDone: function() {
@@ -92,9 +95,6 @@ function createGaNock(endpoint) {
 }
 
 describe('ResinEventLog', function () {
-	// TODO: DEBUG!
-	this.timeout(0)
-
 	before(function() {
 		mock.init()
 	})
@@ -106,18 +106,29 @@ describe('ResinEventLog', function () {
 	})
 
 	describe('Mixpanel track', function () {
+		var eventLog
+
 		beforeEach(function() {
-			createMixpanelNock({
+			createMixpanelMock({
+				endpoint: '/engage',
+				filterQuery: null
+			})
+
+			createMixpanelMock({
 				endpoint: '/decide',
 				filterQuery: null,
 				response: JSON.stringify({"notifications":[],"config":{"enable_collect_everything":false}})
 			})
 		})
 
-		it('should make request to Mixpanel and pass the token', function (done) {
-			var mockedRequest = createMixpanelNock({ endpoint: '/track' })
+		afterEach(function() {
+			return eventLog.end()
+		})
 
-			var eventLog = ResinEventLog({
+		it('should make request to Mixpanel and pass the token', function (done) {
+			var mockedRequest = createMixpanelMock({ endpoint: '/track' })
+
+			eventLog = ResinEventLog({
 				mixpanelToken: MIXPANEL_TOKEN,
 				prefix: SYSTEM,
 				debug: true,
@@ -138,9 +149,9 @@ describe('ResinEventLog', function () {
 		})
 
 		it('should have semantic methods like device.rename that send requests to mixpanel', function (done) {
-			var mockedRequest = createMixpanelNock({ endpoint: '/track' })
+			var mockedRequest = createMixpanelMock({ endpoint: '/track' })
 
-			var eventLog = ResinEventLog({
+			eventLog = ResinEventLog({
 				mixpanelToken: MIXPANEL_TOKEN,
 				prefix: SYSTEM,
 				debug: true,
@@ -161,7 +172,7 @@ describe('ResinEventLog', function () {
 		})
 	})
 
-	describe('GA track', function () {
+	describe.skip('GA track', function () {
 		var eventLog
 
 		afterEach(function() {
@@ -169,7 +180,7 @@ describe('ResinEventLog', function () {
 		})
 
 		it('should make request to GA', function (done) {
-			var mockedRequest = createGaNock('/collect')
+			var mockedRequest = createGaMock('/collect')
 
 			eventLog = ResinEventLog({
 				gaId: GA_ID,
@@ -193,7 +204,7 @@ describe('ResinEventLog', function () {
 		})
 
 		it('should have semantic methods like device.rename that send requests to mixpanel', function (done) {
-			var mockedRequest = createGaNock('/collect')
+			var mockedRequest = createGaMock('/collect')
 
 			eventLog = ResinEventLog({
 				gaId: GA_ID,
