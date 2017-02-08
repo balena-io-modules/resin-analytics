@@ -27,18 +27,21 @@ var FAKE_USER = {
 	$created: new Date().toISOString()
 }
 
-function validateMixpanelQuery(queryObject) {
-	var data = queryObject.data
-	if (!data) return false
+function validateMixpanelQuery(event) {
+	return function(queryObject) {
+		var data = queryObject.data
+		if (!data) return false
 
-	try {
-		data = JSON.parse(base64Decode(data))
-		return (
-			data && data.properties &&
-			data.properties.token === MIXPANEL_TOKEN
-		)
-	} catch (e) {
-		return false
+		try {
+			data = JSON.parse(base64Decode(data))
+			return (
+				data && data.properties &&
+				data.properties.token === MIXPANEL_TOKEN &&
+				(!event || event === data.event)
+			)
+		} catch (e) {
+			return false
+		}
 	}
 }
 
@@ -46,9 +49,10 @@ function createMixpanelMock(options) {
 	_.defaults(options, {
 		host: MIXPANEL_HOST,
 		method: 'GET',
-		filterQuery: validateMixpanelQuery,
+		filterQuery: validateMixpanelQuery(options.event),
 		response: '1'
 	})
+	delete options.event
 	return mock.create(options)
 }
 
@@ -120,6 +124,11 @@ describe('ResinEventLog', function () {
 				endpoint: '/decide',
 				filterQuery: function() { return true },
 				response: JSON.stringify({"notifications":[],"config":{"enable_collect_everything":false}})
+			})
+
+			createMixpanelMock({
+				endpoint: '/track',
+				event: '$create_alias'
 			})
 		})
 
