@@ -99,7 +99,8 @@ function createGaMock(endpoint) {
 }
 
 describe('ResinEventLog', function () {
-	this.timeout(0)
+	// Use 0 for debugging in the real browser
+	this.timeout(3000)
 
 	before(function() {
 		mock.init()
@@ -142,7 +143,7 @@ describe('ResinEventLog', function () {
 			eventLog = ResinEventLog({
 				mixpanelToken: MIXPANEL_TOKEN,
 				prefix: SYSTEM,
-				debug: true,
+				// debug: true,
 				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
 					if (err) {
 						console.error('Mixpanel error:', err)
@@ -165,7 +166,7 @@ describe('ResinEventLog', function () {
 			eventLog = ResinEventLog({
 				mixpanelToken: MIXPANEL_TOKEN,
 				prefix: SYSTEM,
-				debug: true,
+				// debug: true,
 				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
 					if (err) {
 						console.error('Mixpanel error:', err)
@@ -183,7 +184,8 @@ describe('ResinEventLog', function () {
 		})
 	})
 
-	describe.skip('GA track', function () {
+	describe('GA track', function () {
+		// NB: GA tests **must** be run with `debug: true`, it influences some the cookiDomain and transport params of GA tracking
 		var eventLog
 
 		afterEach(function() {
