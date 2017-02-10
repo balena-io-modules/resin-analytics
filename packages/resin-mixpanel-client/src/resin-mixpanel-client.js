@@ -16,7 +16,7 @@ module.exports = function(token) {
 	function wrapCallback(callback) {
 		if (!callback) return null
 		return function(response) {
-			if (response === 0) return callback(new Error('Mixpanel error'))
+			if (response !== 1) return callback(new Error('Mixpanel error, code: ' + response))
 			if (response.error) return callback(response.error)
 			callback(null, response)
 		}
@@ -31,9 +31,15 @@ module.exports = function(token) {
 				return mixpanel().alias(uid, uid, callback)
 			}
 		},
-		login: function(uid, callback) {
+		login: function(uid, callback, setUserOnceCallback) {
 			if (isBrowser) {
-				mixpanel().identify(uid)
+				// We uwse the optional (undocumented) params
+				// https://github.com/mixpanel/mixpanel-js/blob/b4cf2c5cb900fbb102370c01553e9a70f4c6e2d0/src/mixpanel-core.js#L1331
+				mixpanel().identify(
+					uid,
+					null, null, null, // _set_callback, _add_callback, _append_callback
+					wrapCallback(setUserOnceCallback) // _set_once_callback
+				)
 			}
 			userId = uid
 			if (typeof callback === "function") callback()

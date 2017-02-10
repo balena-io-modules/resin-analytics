@@ -100,7 +100,7 @@ function createGaMock(endpoint) {
 
 describe('ResinEventLog', function () {
 	// Use 0 for debugging in the real browser
-	this.timeout(3000)
+	this.timeout(0)
 
 	before(function() {
 		mock.init()
@@ -184,7 +184,7 @@ describe('ResinEventLog', function () {
 		})
 	})
 
-	describe('GA track', function () {
+	describe.skip('GA track', function () {
 		// NB: GA tests **must** be run with `debug: true`, it influences some the cookiDomain and transport params of GA tracking
 		var eventLog
 

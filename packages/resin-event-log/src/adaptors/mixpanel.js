@@ -4,7 +4,9 @@ var pick = require('lodash/pick')
 
 var ResinMixpanelClient = require('resin-mixpanel-client')
 
-var getMixpanelUser = function(userData) {
+var isBrowser = typeof window !== 'undefined'
+
+function getMixpanelUser(userData) {
 	var mixpanelUser = assign({
 		'$email': userData.email,
 		'$name': userData.username
@@ -20,6 +22,10 @@ var getMixpanelUser = function(userData) {
 		'public_key',
 		'username'
 	])
+}
+
+function getSignupOrLoginMethodName(isNewUser) {
+	return isNewUser ? 'signup' : 'login'
 }
 
 module.exports = function (options) {
@@ -40,20 +46,24 @@ module.exports = function (options) {
 			var mixpanelUser = getMixpanelUser(user)
 
 			return Promise.fromCallback(function (callback) {
-				var login = function() {
-					mixpanel.login(user.username, function() {
-						mixpanel.setUserOnce(mixpanelUser, callback)
-					})
-				}
+				var signupOrLogin
 
-				if (mixpanelUser.$created) {
-					mixpanel.signup(user.username, function() {
-						login()
-					})
+				if (isBrowser) {
+					// In the browser the `people.set_once` will return -1 if called right after `identify`
+					signupOrLogin = function (isNewUser) {
+						mixpanel[getSignupOrLoginMethodName(isNewUser)](user.username, function() {
+							mixpanel.setUserOnce(mixpanelUser)
+						}, callback /* setUserOnceCallback */)
+					}
 				} else {
-					login()
+					signupOrLogin = function (isNewUser) {
+						mixpanel[getSignupOrLoginMethodName(isNewUser)](user.username, function() {
+							mixpanel.setUserOnce(mixpanelUser, callback)
+						})
+					}
 				}
 
+				signupOrLogin(mixpanelUser.$created)
 			})
 		},
 		logout: function() {
