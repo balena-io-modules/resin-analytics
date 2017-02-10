@@ -63,34 +63,56 @@ module.exports = function(token) {
 			if (typeof callback === "function") callback()
 		},
 		setUser: function(prop, to, callback) {
+			var mp = mixpanel()
+
 			if (isBrowser) {
-				callback = wrapCallback(callback)
-				return mixpanel().people.set(prop, to, callback)
+				if (!callback && typeof to === 'function') {
+					callback = wrapCallback(to)
+					return mp.people.set(prop, callback)
+				} else {
+					callback = wrapCallback(callback)
+					return mp.people.set(prop, to, callback)
+				}
 			} else {
 				if (!userId) {
 					throw new Error('(Resin Mixpanel Client) Please login() before using setUser()')
 				}
-				return mixpanel().people.set(userId, prop, to, callback)
+				return mp.people.set(userId, prop, to, callback)
 			}
 		},
 		setUserOnce: function(prop, to, callback) {
+			var mp = mixpanel()
+
 			if (isBrowser) {
-				callback = wrapCallback(callback)
-				return mixpanel().people.set_once(prop, to, callback)
+				if (!callback && typeof to === 'function') {
+					callback = wrapCallback(to)
+					return mp.people.set_once(prop, callback)
+				} else {
+					callback = wrapCallback(callback)
+					return mp.people.set_once(prop, to, callback)
+				}
 			} else {
 				if (!userId) {
 					throw new Error('(Resin Mixpanel Client) Please login() before using setUserOnce()')
 				}
-				return mixpanel().people.set_once(userId, prop, to, callback)
+				return mp.people.set_once(userId, prop, to, callback)
 			}
 		},
 		track: function(event, properties, callback) {
+			var mp = mixpanel()
+
 			if (isBrowser) {
-				callback = wrapCallback(callback)
+				if (!callback && typeof properties === 'function') {
+					callback = wrapCallback(properties)
+					return mp.track(event, callback)
+				} else {
+					callback = wrapCallback(callback)
+					return mp.track(event, properties, callback)
+				}
 			} else {
 				properties.distinct_id = userId
+				return mp.track(event, properties, callback)
 			}
-			return mixpanel().track(event, properties, callback)
 		}
 	}
 
