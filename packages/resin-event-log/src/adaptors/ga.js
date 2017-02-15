@@ -1,5 +1,3 @@
-var Promise = require('bluebird')
-
 var ResinGaClient = require('resin-universal-ga')
 
 module.exports = function (options) {

@@ -1,12 +1,25 @@
 require('./mixpanel-loader')
 
+var Promise = require('bluebird')
+var TRACKER_NAME = 'resinAnalytics'
+
 // normalize the API to match the one of the node module
 module.exports = {
-	init: function() {
-		window.mixpanel.init.apply(window.mixpanel, arguments)
-		// we have to wrap it into a getter because in the browser the global instance is replaced when the lib is loaded
-		return function () {
-			return window.mixpanel
-		}
+	init: function(token) {
+		return new Promise(function (resolve) {
+			var mixpanel = window.mixpanel
+			var isLoaded = mixpanel.__loaded
+			if (mixpanel[TRACKER_NAME]) {
+				mixpanel.init(token, {}, TRACKER_NAME)
+				resolve(mixpanel[TRACKER_NAME])
+				return
+			}
+
+			mixpanel.init(token, {
+				loaded: function() {
+					resolve(window.mixpanel[TRACKER_NAME])
+				}
+			}, TRACKER_NAME)
+		})
 	}
 }
