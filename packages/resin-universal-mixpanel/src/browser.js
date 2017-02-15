@@ -8,7 +8,7 @@ module.exports = {
 	init: function(token) {
 		return new Promise(function (resolve) {
 			var mixpanel = window.mixpanel
-			var isLoaded = mixpanel.__loaded
+
 			if (mixpanel[TRACKER_NAME]) {
 				mixpanel.init(token, {}, TRACKER_NAME)
 				resolve(mixpanel[TRACKER_NAME])

@@ -5,6 +5,6 @@ var mixpanelLib = require('mixpanel')
 module.exports = {
 	init: function(token) {
 		var mixpanel = mixpanelLib.init(token)
-		return  Promise.resolve(mixpanel)
+		return Promise.resolve(mixpanel)
 	}
 }

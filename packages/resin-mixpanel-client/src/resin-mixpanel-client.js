@@ -19,8 +19,12 @@ module.exports = function(token) {
 	function wrapBrowserCallback(callback) {
 		if (!callback) return null
 		return function(response) {
-			if (typeof response === 'number' && response !== 1) return callback(new Error('Mixpanel error: ' + response))
-			if (response.error) return callback(response.error)
+			if (typeof response === 'number' && response !== 1) {
+				return callback(new Error('Mixpanel error: ' + response))
+			}
+			if (response.error) {
+				return callback(response.error)
+			}
 			callback(null, response)
 		}
 	}
@@ -99,7 +103,7 @@ module.exports = function(token) {
 				})
 			})
 		},
-		setUserOnce: function(props, callback) {
+		setUserOnce: function(props) {
 			return mixpanel.then(function(mp) {
 				return Promise.fromCallback(function(callback) {
 					if (isBrowser) {
