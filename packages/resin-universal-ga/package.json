@@ -1,0 +1,16 @@
+{
+  "name": "resin-universal-ga",
+  "version": "0.1.0",
+  "description": "A CommonJS wrapper for both Node.js and browser (async) version of Google Analytics library",
+  "main": "src/node.js",
+  "browser": "src/browser.js",
+  "scripts": {
+  },
+  "keywords": [],
+  "author": "Eugene Mirotin <eugene@resin.io>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "bluebird": "^3.4.7",
+    "universal-analytics": "^0.4.8"
+  }
+}
