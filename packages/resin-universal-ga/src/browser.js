@@ -1,9 +1,6 @@
-var Promise = require('bluebird')
-
 require('./ga-loader')
 
-// var ga = window.ga
-
+var Promise = require('bluebird')
 var TRACKER_NAME = 'resinAnalytics'
 
 module.exports = function (propertyId, site, debug) {

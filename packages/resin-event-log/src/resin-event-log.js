@@ -48,13 +48,11 @@ module.exports = function(options) {
 	})
 
 	function runForAllAdaptors(methodName, args, callback) {
-		return Promise.all(
-			adaptors.map(function (adaptor) {
-				return adaptor[methodName]
-					? adaptor[methodName].apply(adaptor, args)
-					: null
-			})
-		).asCallback(callback)
+		return Promise.map(adaptors, function (adaptor) {
+			return adaptor[methodName]
+				? adaptor[methodName].apply(adaptor, args)
+				: null
+		}).asCallback(callback)
 	}
 
 	var eventLog = {

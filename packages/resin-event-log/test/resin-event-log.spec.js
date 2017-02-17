@@ -7,9 +7,14 @@ var mock = require('resin-universal-http-mock')
 
 var IS_BROWSER = typeof window !== 'undefined'
 
+// NB: set to true to get some extra reporting
+var EXTRA_DEBUG = false
+
 if (IS_BROWSER) {
 	window.MIXPANEL_CUSTOM_LIB_URL = 'http://cdn.mxpnl.com/libs/mixpanel-2-latest.js'
-	// window.GA_CUSTOM_LIB_URL = 'https://www.google-analytics.com/analytics_debug.js'
+	if (EXTRA_DEBUG) {
+		window.GA_CUSTOM_LIB_URL = 'https://www.google-analytics.com/analytics_debug.js'
+	}
 }
 
 var ResinEventLog = require('..')
@@ -99,18 +104,11 @@ function createGaMock(endpoint) {
 }
 
 describe('ResinEventLog', function () {
-	// Use 0 for debugging in the real browser
-	this.timeout(3000)
+	this.timeout(EXTRA_DEBUG ? 0 : 3000)
 
-	before(function() {
-		mock.init()
-	})
-	afterEach(function() {
-		mock.reset()
-	})
-	after(function() {
-		mock.teardown()
-	})
+	before(mock.init)
+	afterEach(mock.reset)
+	after(mock.teardown)
 
 	describe('Mixpanel track', function () {
 		var eventLog
@@ -143,7 +141,7 @@ describe('ResinEventLog', function () {
 			eventLog = ResinEventLog({
 				mixpanelToken: MIXPANEL_TOKEN,
 				prefix: SYSTEM,
-				// debug: true,
+				debug: EXTRA_DEBUG,
 				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
 					if (err) {
 						console.error('Mixpanel error:', err)
@@ -166,7 +164,7 @@ describe('ResinEventLog', function () {
 			eventLog = ResinEventLog({
 				mixpanelToken: MIXPANEL_TOKEN,
 				prefix: SYSTEM,
-				// debug: true,
+				debug: EXTRA_DEBUG,
 				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
 					if (err) {
 						console.error('Mixpanel error:', err)
@@ -216,7 +214,7 @@ describe('ResinEventLog', function () {
 			})
 		})
 
-		it('should have semantic methods like device.rename that send requests to mixpanel', function (done) {
+		it('should have semantic methods like device.rename that send requests to GA', function (done) {
 			var mockedRequest = createGaMock('/collect')
 
 			eventLog = ResinEventLog({
