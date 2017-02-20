@@ -1,6 +1,6 @@
 {
   "name": "resin-universal-http-mock",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Mocks the `http` / `https` in Node.js and the `XHR` in the browser",
   "main": "src/node.js",
   "browser": "src/browser.js",
