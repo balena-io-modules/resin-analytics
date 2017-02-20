@@ -14,7 +14,7 @@ module.exports = function(token) {
 	})
 
 	// the browser mixpanel library calls the callback with the response object (in verbose mode)
-	// or the status 0/1 in non-verbose mode
+	// or the status 0/1/-1 in non-verbose mode
 	// we normalize it here to match the node style and work with Promise.fromCallback
 	function wrapBrowserCallback(callback) {
 		if (!callback) return null

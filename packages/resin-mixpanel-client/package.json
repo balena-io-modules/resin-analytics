@@ -1,7 +1,7 @@
 {
   "name": "resin-mixpanel-client",
   "version": "0.0.4",
-  "description": "",
+  "description": "The library to normalize the Mixpanel browser / node idiosyncrasies",
   "main": "src/resin-mixpanel-client.js",
   "scripts": {
     "lint": "resin-lint src"
@@ -15,9 +15,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:resin-io/resin-mixpanel-client.git"
+    "url": "git@github.com:resin-io-modules/resin-analytics.git"
   },
   "author": "Iskren Slavov <iskren@resin.io>",
   "license": "Apache-2.0",
-  "homepage": "https://github.com/resin-io/resin-mixpanel-client"
+  "homepage": "https://github.com/resin-io-modules/resin-analytics"
 }

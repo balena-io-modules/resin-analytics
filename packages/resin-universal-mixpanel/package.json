@@ -12,5 +12,10 @@
   "dependencies": {
     "bluebird": "^3.4.7",
     "mixpanel": "^0.6.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:resin-io-modules/resin-analytics.git"
+  },
+  "homepage": "https://github.com/resin-io-modules/resin-analytics"
 }
