@@ -114,6 +114,12 @@ describe('ResinEventLog', function () {
 		var eventLog
 
 		beforeEach(function() {
+			// We now send the two /engage requests - for $set and $set_once
+			createMixpanelMock({
+				endpoint: '/engage',
+				filterQuery: function() { return true }
+			})
+
 			createMixpanelMock({
 				endpoint: '/engage',
 				filterQuery: function() { return true }
