@@ -1,3 +1,9 @@
+## 1.1.0
+
+* Now running $set (instead of $set_once) for the user props we'd like to keep up to date
+
+## 1.0.0
+
 * **Breaking!** `mixpanelToken` is not mandatory anymore. If not provided events
 are not reported to Mixpanel (a warning is printed in `debug` mode).
 * Added `debug` option
