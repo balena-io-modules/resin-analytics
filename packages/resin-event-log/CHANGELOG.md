@@ -1,3 +1,7 @@
+## 1.1.1
+
+* Make GA more resilient to incorrect usage and tracking problems
+
 ## 1.1.0
 
 * Now running $set (instead of $set_once) for the user props we'd like to keep up to date
