@@ -18,7 +18,7 @@ module.exports = function (propertyId, site, debug) {
 			loggedIn = true;
 		},
 		logout: function () {
-			if (!loggedIn) throw new Error("Can't record GA logout event before login");
+			if (!loggedIn) throw new Error("GA logout called before login");
 
 			return Promise.fromCallback(function (callback) {
 				window.ga(function() {

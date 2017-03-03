@@ -70,6 +70,9 @@ module.exports = function(options) {
 			return runForAllAdaptors('login', [ user ], callback)
 		},
 		end: function(callback) {
+			if (!this.userId) {
+				return Promise.resolve()
+			}
 			this.userId = null
 			return runForAllAdaptors('logout', [], callback)
 		},

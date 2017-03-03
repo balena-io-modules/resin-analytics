@@ -1,3 +1,5 @@
+## 1.1.1
+
 * Make GA more resilient to incorrect usage and tracking problems
 
 ## 1.1.0
