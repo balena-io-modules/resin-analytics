@@ -1,13 +1,13 @@
 {
   "name": "resin-event-log",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Resin events logging util",
   "main": "src/resin-event-log.js",
   "dependencies": {
     "bluebird": "^3.4.7",
     "lodash": "^4.0.0",
     "resin-mixpanel-client": "^1.0.0",
-    "resin-universal-ga": "^1.0.0"
+    "resin-universal-ga": "^1.0.1"
   },
   "devDependencies": {
     "base-64": "^0.1.0",
