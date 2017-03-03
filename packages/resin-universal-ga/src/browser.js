@@ -35,7 +35,7 @@ module.exports = function (propertyId, site, debug) {
 					category, action, label,
 					options
 				)
-			})
+			}).timeout(1000);
 		}
 	}
 }
