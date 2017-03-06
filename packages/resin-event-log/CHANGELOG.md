@@ -1,3 +1,7 @@
+## 1.2.0
+
+Return rejected promises from the GA methods instead of throwing (prevents unhandled errors in the downstream code)
+
 ## 1.1.1
 
 * Make GA more resilient to incorrect usage and tracking problems
