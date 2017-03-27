@@ -10,7 +10,8 @@
   "license": "Apache-2.0",
   "dependencies": {
     "bluebird": "^3.4.7",
-    "mixpanel": "^0.6.0"
+    "mixpanel": "^0.6.0",
+    "mixpanel-browser": "^2.11.0"
   },
   "repository": {
     "type": "git",

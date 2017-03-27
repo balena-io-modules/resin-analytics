@@ -4,13 +4,10 @@ var mixpanelLib = require('resin-universal-mixpanel')
 module.exports = function(token) {
 
 	var mixpanel = mixpanelLib.init(token)
-	var userId = null
 	var isBrowser = typeof window !== 'undefined'
 
-	mixpanel.then(function (mp) {
-		mp.set_config({
-			track_pageview: false
-		})
+	mixpanel.set_config({
+		track_pageview: false
 	})
 
 	// the browser mixpanel library calls the callback with the response object (in verbose mode)
@@ -29,19 +26,26 @@ module.exports = function(token) {
 		}
 	}
 
-	return {
+	// Like Promise.fromCallback, but handling mixpanel's crazy
+	// callback format if required (if we're in a browser)
+	function mixpanelToPromise(promiseFunction) {
+		return Promise.fromCallback(function (callback) {
+			if (isBrowser) {
+				promiseFunction(wrapBrowserCallback(callback))
+			} else {
+				promiseFunction(callback)
+			}
+		})
+	}
+
+	var self = {
 		signup: function(uid) {
-			var self = this
-
-			return mixpanel.then(function(mp) {
-				return Promise.fromCallback(function(callback) {
-					if (isBrowser) {
-						callback = wrapBrowserCallback(callback)
-						return callback(mp.alias(uid))
-					}
-
-					mp.alias(uid, uid, callback)
-				})
+			return mixpanelToPromise(function (callback) {
+				if (isBrowser) {
+					callback(mixpanel.alias(uid))
+				} else {
+					mixpanel.alias(uid, uid, callback)
+				}
 			}).then(function() {
 				// calling `login` from here is the only way to ensure
 				// `identify` is called before continuing to tracking
@@ -49,87 +53,64 @@ module.exports = function(token) {
 			})
 		},
 		login: function(uid) {
-			userId = uid
+			self.userId = uid
 
-			if (isBrowser) {
-				return mixpanel.then(function(mp) {
-					mp.identify(uid)
-				})
-			}
-
-			return Promise.resolve()
+			return mixpanelToPromise(function (callback) {
+				if (isBrowser) {
+					mixpanel.identify(uid)
+					callback()
+				} else {
+					mixpanel.people.set_once(uid, { '$distinct_id': uid }, callback)
+				}
+			})
 		},
 		logout: function() {
-			userId = null
+			self.userId = null
 
-			if (isBrowser) {
-				return mixpanel.then(function(mp) {
-					mp.reset()
-				})
-			}
+			return mixpanelToPromise(function (callback) {
+				if (isBrowser) {
+					mixpanel.reset()
+				} // Node module has no state, so no-op.
 
-			return Promise.resolve()
-		},
-		set: function(props) {
-			if (isBrowser) {
-				return mixpanel.then(function(mp) {
-					mp.register(props)
-				})
-			}
-
-			return Promise.resolve()
-		},
-		setOnce: function(props) {
-			if (isBrowser) {
-				return mixpanel.then(function(mp) {
-					mp.register_once(props)
-				})
-			}
-
-			return Promise.resolve()
+				callback()
+			})
 		},
 		setUser: function(props) {
-			return mixpanel.then(function(mp) {
-				return Promise.fromCallback(function(callback) {
-					if (isBrowser) {
-						callback = wrapBrowserCallback(callback)
-						return mp.people.set(props, callback)
-					}
+			return mixpanelToPromise(function(callback) {
+				if (!self.userId) {
+					throw new Error('(Resin Mixpanel Client) Please login() before using setUser()')
+				}
 
-					if (!userId) {
-						throw new Error('(Resin Mixpanel Client) Please login() before using setUser()')
-					}
-					return mp.people.set(userId, props, callback)
-				})
+				if (isBrowser) {
+					mixpanel.people.set(props, callback)
+				} else {
+					mixpanel.people.set(self.userId, props, callback)
+				}
 			})
 		},
 		setUserOnce: function(props) {
-			return mixpanel.then(function(mp) {
-				return Promise.fromCallback(function(callback) {
-					if (isBrowser) {
-						callback = wrapBrowserCallback(callback)
-						return mp.people.set_once(props, callback)
-					}
+			return mixpanelToPromise(function(callback) {
+				if (!self.userId) {
+					throw new Error('(Resin Mixpanel Client) Please login() before using setUserOnce()')
+				}
 
-					if (!userId) {
-						throw new Error('(Resin Mixpanel Client) Please login() before using setUserOnce()')
-					}
-					return mp.people.set_once(userId, props, callback)
-				})
+				if (isBrowser) {
+					mixpanel.people.set_once(props, callback)
+				} else {
+					mixpanel.people.set_once(self.userId, props, callback)
+				}
 			})
 		},
 		track: function(event, props) {
-			return mixpanel.then(function(mp) {
-				return Promise.fromCallback(function(callback) {
-					if (isBrowser) {
-						callback = wrapBrowserCallback(callback)
-					} else {
-						props.distinct_id = userId
-					}
-					return mp.track(event, props, callback)
-				})
+			return mixpanelToPromise(function(callback) {
+				if (!isBrowser) {
+					props.distinct_id = self.userId
+				}
+
+				return mixpanel.track(event, props, callback)
 			})
 		}
 	}
 
+	return self
 }
