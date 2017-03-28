@@ -19,7 +19,7 @@ module.exports = function(token) {
 			if (typeof response === 'number' && response !== 1) {
 				return callback(new Error('Mixpanel error: ' + response))
 			}
-			if (response.error) {
+			if (response && response.error) {
 				return callback(response.error)
 			}
 			callback(null, response)
@@ -69,10 +69,11 @@ module.exports = function(token) {
 
 			return mixpanelToPromise(function (callback) {
 				if (isBrowser) {
-					mixpanel.reset()
-				} // Node module has no state, so no-op.
-
-				callback()
+					callback(mixpanel.reset())
+				} else {
+					// Node module has no state, so no-op.
+					callback(null, true)
+				}
 			})
 		},
 		setUser: function(props) {
