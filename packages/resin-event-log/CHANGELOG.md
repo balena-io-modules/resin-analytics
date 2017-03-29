@@ -1,3 +1,5 @@
+# 1.3.0
+
 * Mixpanel users will be created if they do not exist on `login`/`signup` in Node (this previously only happened in the browser).
 * Mixpanel is now bundled, and loaded synchronously, so should never fail to load.
 
