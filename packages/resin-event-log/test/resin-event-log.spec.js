@@ -32,6 +32,16 @@ var FAKE_USER = {
 	$created: new Date().toISOString()
 }
 
+function aggregateMock(mocks) {
+	return {
+		isDone: function() {
+			return _.some(mocks, function(mock) {
+				return mock.isDone()
+			})
+		}
+	}
+}
+
 function validateMixpanelQuery(event) {
 	return function(queryObject) {
 		var data = queryObject.data
@@ -50,7 +60,9 @@ function validateMixpanelQuery(event) {
 	}
 }
 
-function createMixpanelMock(options) {
+function createMixpanelMock(options, times) {
+	times = times || 1
+
 	_.defaults(options, {
 		host: MIXPANEL_HOST,
 		method: 'GET',
@@ -58,7 +70,12 @@ function createMixpanelMock(options) {
 		response: '1'
 	})
 	delete options.event
-	return mock.create(options)
+
+	var mocks = _.range(times).map(function () {
+		return mock.create(options)
+	})
+
+	return aggregateMock(mocks)
 }
 
 function validateGaBody(bodyString) {
@@ -94,13 +111,7 @@ function createGaMock(endpoint) {
 		createOneGaMock(endpoint),
 		createOneGaMock('/r' + endpoint)
 	]
-	return {
-		isDone: function() {
-			return _.some(mocks, function(mock) {
-				return mock.isDone()
-			})
-		}
-	}
+	return aggregateMock(mocks)
 }
 
 describe('ResinEventLog', function () {
@@ -114,16 +125,14 @@ describe('ResinEventLog', function () {
 		var eventLog
 
 		beforeEach(function() {
-			// We now send the two /engage requests - for $set and $set_once
+			// We send up to three /engage requests:
+			// * on login: identify or $set_once with $distinct_id, to ensure the user exists
+			// * after login: $set to set their email/name/etc
+			// * after login: $set_once to set their created time, if they don't already have one.
 			createMixpanelMock({
 				endpoint: '/engage',
 				filterQuery: function() { return true }
-			})
-
-			createMixpanelMock({
-				endpoint: '/engage',
-				filterQuery: function() { return true }
-			})
+			}, 3)
 
 			createMixpanelMock({
 				endpoint: '/decide',
