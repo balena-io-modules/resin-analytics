@@ -28,12 +28,12 @@ module.exports = function(token) {
 
 	// Like Promise.fromCallback, but handling mixpanel's crazy
 	// callback format if required (if we're in a browser)
-	function mixpanelToPromise(promiseFunction) {
+	function mixpanelToPromise(callbackBasedFunction) {
 		return Promise.fromCallback(function (callback) {
 			if (isBrowser) {
-				promiseFunction(wrapBrowserCallback(callback))
+				callbackBasedFunction(wrapBrowserCallback(callback))
 			} else {
-				promiseFunction(callback)
+				callbackBasedFunction(callback)
 			}
 		})
 	}
