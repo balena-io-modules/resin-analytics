@@ -31,7 +31,11 @@ var getMixpanelUser = function(userData) {
 
 module.exports = function (options) {
 	var debug = options.debug,
-		token = options.mixpanelToken
+		token = options.mixpanelToken,
+		mixpanelOptions = options.mixpanelHost ? {
+			api_host: options.mixpanelHost,
+			decide_host: options.mixpanelHost
+		} : {}
 
 	if (!token) {
 		if (debug) {
@@ -40,7 +44,7 @@ module.exports = function (options) {
 		return null
 	}
 
-	var mixpanel = ResinMixpanelClient(token)
+	var mixpanel = ResinMixpanelClient(token, mixpanelOptions)
 
 	return {
 		login: function(user) {

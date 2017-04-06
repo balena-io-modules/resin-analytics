@@ -1,3 +1,5 @@
+* Accept a mixpanel options object
+
 # 2.0.0
 
 * Mixpanel users will be created if they do not exist on `login`/`signup` in Node (this previously only happened in the browser).
