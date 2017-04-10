@@ -1,3 +1,5 @@
+* Accept a new `mixpanelHost` option to override the mixpanel API domain
+
 # 1.3.0
 
 * Mixpanel users will be created if they do not exist on `login`/`signup` in Node (this previously only happened in the browser).

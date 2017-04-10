@@ -1,9 +1,9 @@
 var Promise = require('bluebird')
 var mixpanelLib = require('resin-universal-mixpanel')
 
-module.exports = function(token) {
+module.exports = function(token, options) {
 
-	var mixpanel = mixpanelLib.init(token)
+	var mixpanel = mixpanelLib.init(token, options)
 	var isBrowser = typeof window !== 'undefined'
 
 	mixpanel.set_config({
