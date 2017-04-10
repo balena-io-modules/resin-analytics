@@ -1,3 +1,5 @@
+# 2.1.0
+
 * Accept a mixpanel options object
 
 # 2.0.0

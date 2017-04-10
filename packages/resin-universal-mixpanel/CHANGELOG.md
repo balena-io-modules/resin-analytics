@@ -1,3 +1,5 @@
+# 2.1.0
+
 * Accept mixpanel options passed to .init()
 
 # 2.0.0

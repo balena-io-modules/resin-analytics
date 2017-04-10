@@ -1,3 +1,5 @@
+# 1.4.0
+
 * Accept a new `mixpanelHost` option to override the mixpanel API domain
 
 # 1.3.0
