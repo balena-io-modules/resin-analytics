@@ -12,7 +12,7 @@ var EVENTS = {
 	environmentVariable: [ 'create', 'edit', 'delete' ],
 	device: [ 'open', 'rename', 'delete', 'terminalOpen', 'terminalClose' ],
 	deviceEnvironmentVariable: [ 'create', 'edit', 'delete' ],
-	page: [ 'view' ]
+	page: [ 'visit' ]
 }
 
 var DEFAULT_HOOKS = {
@@ -97,7 +97,6 @@ module.exports = function(options) {
 					hooks.afterCreate.call(_this, err, type, jsonData, applicationId, deviceId)
 				}).catch(function (err) {
 					// discard the hook error
-					console.log('OMGerr', err)
 					if (debug) {
 						console.warn("`afterCreate` error", err)
 					}

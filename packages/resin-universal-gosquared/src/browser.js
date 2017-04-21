@@ -16,7 +16,7 @@ module.exports = function (gosquaredId, apiKey, debug) {
 
 			if (userId) {
 				window._gs(TRACKER_NAME + '.identify', {
-				  id: userId
+					id: userId
 				});
 			}
 			loggedIn = true
@@ -36,7 +36,7 @@ module.exports = function (gosquaredId, apiKey, debug) {
 			if (!loggedIn) return Promise.reject(new Error("Can't record gosquared events without a login first"))
 
 			return Promise.fromCallback(function (callback) {
-				if (type === 'Page View') {
+				if (type === 'Page Visit') {
 					window._gs(TRACKER_NAME + '.track', data.url || window.location.pathname)
 				} else {
 					window._gs(TRACKER_NAME + '.event', type, data)

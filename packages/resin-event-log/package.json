@@ -8,7 +8,7 @@
     "lodash": "^4.0.0",
     "resin-mixpanel-client": "^2.1.0",
     "resin-universal-ga": "^1.1.0",
-    "resin-universal-gosquared": "*"
+    "resin-universal-gosquared": "^0.1.0"
   },
   "devDependencies": {
     "base-64": "^0.1.0",

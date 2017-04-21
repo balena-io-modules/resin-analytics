@@ -2,7 +2,6 @@ var _ = require('lodash')
 var expect = require('chai').expect
 var base64Decode = require('base-64').decode
 var querystring = require('querystring')
-
 var mock = require('resin-universal-http-mock')
 
 var IS_BROWSER = typeof window !== 'undefined'
@@ -118,17 +117,14 @@ function createGaMock(endpoint) {
 }
 
 function validateGsQuery(event) {
-	return true
 	if (IS_BROWSER) {
 		return true
 	}
 
-	if (!IS_BROWSER) {
-		return (
-			event.site_token === GOSQUARED_ID
-			&& event.api_key === GOSQUARED_API_KEY
-		)
-	}
+	return (
+		event.site_token === GOSQUARED_ID &&
+		event.api_key === GOSQUARED_API_KEY
+	)
 }
 
 function createGsMock(options, times) {
@@ -151,7 +147,6 @@ function createGsMock(options, times) {
 }
 
 describe('ResinEventLog', function () {
-	this.timeout(EXTRA_DEBUG ? 0 : 3000)
 
 	before(mock.init)
 	afterEach(mock.reset)
@@ -299,6 +294,7 @@ describe('ResinEventLog', function () {
 		})
 
 		it('should make request to gosquared', function (done) {
+			// this.timeout(9000)
 			var EXPECTED_EVENT = 'x'
 			var mockedRequest = createGsMock({
 				endpoint: endpoint,
@@ -307,23 +303,21 @@ describe('ResinEventLog', function () {
 					if (!IS_BROWSER) {
 						return (body.event.name === EXPECTED_EVENT)
 					}
-					return true;
+					return true
 				}
 			})
 			eventLog = ResinEventLog({
 				gosquaredId: GOSQUARED_ID,
 				gosquaredApiKey: GOSQUARED_API_KEY,
 				prefix: SYSTEM,
-				debug: true,
+				// debug: true,
 				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
 					if (err) {
 						console.error('gosquared error:', err)
 					}
 					expect(!err).to.be.ok
 					expect(type).to.be.equal(EXPECTED_EVENT)
-					if (!IS_BROWSER) {
-						expect(mockedRequest.isDone()).to.be.ok
-					}
+					expect(mockedRequest.isDone()).to.be.ok
 					done()
 				}
 			})
@@ -340,13 +334,11 @@ describe('ResinEventLog', function () {
 				method: IS_BROWSER ? 'GET' : 'POST',
 				filterBody: function (body, eventName) {
 					if (!IS_BROWSER) {
-						// browser nock requests are never being fulfilled :/
 						return (body.event.name === 'Device Rename')
 					}
-					return true;
+					return true
 				}
 			})
-
 
 			eventLog = ResinEventLog({
 				gosquaredId: GOSQUARED_ID,
@@ -359,9 +351,7 @@ describe('ResinEventLog', function () {
 					}
 					expect(!err).to.be.ok
 					expect(type).to.be.equal(EXPECTED_EVENT)
-					if (!IS_BROWSER) {
-						expect(mockedRequest.isDone()).to.be.ok
-					}
+					expect(mockedRequest.isDone()).to.be.ok
 					done()
 				}
 			})

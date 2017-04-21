@@ -6,10 +6,26 @@ module.exports = function (config) {
 	karmaConfig.sauceLabs = {
 		testName: packageJSON.name + ' v' + packageJSON.version
 	}
-	karmaConfig.browserConsoleLogOptions = {
-    level: 'log',
-    terminal: true
-  }
+	// debugging
+	// karmaConfig.browsers = ['PhantomJS_custom'],
+	// karmaConfig.customLaunchers = {
+  //   'PhantomJS_custom': {
+  //     base: 'PhantomJS',
+  //     options: {
+	// 			onResourceRequested: function(request) {
+	// 				if (request.url.indexOf('localhost') < 0) {
+	// 					console.log('Request ' + JSON.stringify(request, undefined, 4));
+	// 				}
+	// 			}
+  //     },
+  //     flags: ['--load-images=true'],
+  //     debug: true
+  //   }
+  // }
+	// karmaConfig.browserConsoleLogOptions = {
+	// 	level: 'log',
+	// 	terminal: true
+	// }
 	karmaConfig.client = {
 		captureConsole: true
 	}
@@ -17,5 +33,9 @@ module.exports = function (config) {
 	karmaConfig.files = [
 		'test/*.spec.js'
 	]
+	karmaConfig.phantomjsLauncher = {
+      // Have phantomjs exit if a ResourceError is encountered (useful if karma exits without killing phantom)
+      exitOnResourceError: true
+  }
 	config.set(karmaConfig)
 }

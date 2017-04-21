@@ -2,11 +2,11 @@ var ResinGsClient = require('resin-universal-gosquared')
 
 module.exports = function (options) {
 	var debug = options.debug,
-		gosquaredId = options.gosquaredId
-		apiKey = options.gosquaredApiKey
+		gosquaredId = options.gosquaredId,
+		apiKey = options.gosquaredApiKey,
 		isBrowser = typeof window !== 'undefined'
 
-	if (!(gosquaredId)) {
+	if (!gosquaredId) {
 		if (debug) {
 			console.warn("`gosquaredId` is not set, gosquared tracking is disabled")
 		}
