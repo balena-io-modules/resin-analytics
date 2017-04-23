@@ -7,11 +7,11 @@ module.exports = function (gosquaredId, apiKey, debug) {
 	loggedIn = false
 	return {
 		login: function (userId) {
-			window._gs(gosquaredId, TRACKER_NAME, false)
+			// automatically track pageviews in debug mode
+			window._gs(gosquaredId, TRACKER_NAME, debug)
 
 			if (debug) {
-				_gs(TRACKER_NAME + '.set', 'cookieDomain', undefined);
-				_gs(TRACKER_NAME + '.set', 'trackLocal', true);
+				window._gs(TRACKER_NAME + '.set', 'trackLocal', true);
 			}
 
 			if (userId) {
