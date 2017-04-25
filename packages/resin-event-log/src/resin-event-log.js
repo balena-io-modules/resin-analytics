@@ -23,8 +23,8 @@ var DEFAULT_HOOKS = {
 }
 
 var ADAPTORS = [
-	require('./adaptors/ga'),
-	require('./adaptors/mixpanel'),
+	// require('./adaptors/ga'),
+	// require('./adaptors/mixpanel'),
 	require('./adaptors/gosquared')
 ]
 
@@ -61,13 +61,9 @@ module.exports = function(options) {
 		userId: null,
 		prefix: prefix,
 		start: function(user, callback) {
-			if (!user) {
-				return Promise.reject(new Error(
-					'user is required to start events interaction.'
-				)).asCallback(callback)
+			if (user) {
+				this.userId = user.id
 			}
-
-			this.userId = user.id
 
 			return runForAllAdaptors('login', [ user ], callback)
 		},
