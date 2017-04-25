@@ -30,7 +30,7 @@ module.exports = function(gosquaredId, apiKey, debug) {
 			return Promise.fromCallback(function (callback) {
 				// node sdk doesn't support pageviews so no conditional here.
 				// https://www.gosquared.com/docs/api/tracking/pageview/node/
-				vistor.trackEvent(type, data, callback);
+				vistor.trackEvent(type, data, callback)
 			})
 		}
 	}

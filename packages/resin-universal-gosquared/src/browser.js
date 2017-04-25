@@ -9,15 +9,12 @@ module.exports = function (gosquaredId, apiKey, debug) {
 		login: function (userId) {
 			// automatically track pageviews in debug mode
 			window._gs(gosquaredId, TRACKER_NAME, debug)
-
-			if (debug) {
-				window._gs(TRACKER_NAME + '.set', 'trackLocal', true);
-			}
+			window._gs(TRACKER_NAME + '.set', 'trackLocal', debug)
 
 			if (userId) {
 				window._gs(TRACKER_NAME + '.identify', {
 					id: userId
-				});
+				})
 			}
 			loggedIn = true
 		},
@@ -26,7 +23,7 @@ module.exports = function (gosquaredId, apiKey, debug) {
 
 			return Promise.fromCallback(function (callback) {
 				window._gs(function() {
-					window._gs(TRACKER_NAME + '.unidentify');
+					window._gs(TRACKER_NAME + '.unidentify')
 					loggedIn = false
 					callback()
 				})
