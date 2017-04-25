@@ -14,16 +14,16 @@ module.exports = function (gosquaredId, apiKey, debug) {
 			if (userId) {
 				window._gs(TRACKER_NAME + '.identify', {
 					id: userId
-				});
+				})
 				loggedIn = true
 			}
 		},
 		logout: function () {
-			if (!loggedIn) return Promise.reject(new Error("gosquared: No user is currently logged in."))
+			if (!loggedIn && debug) console.warn('GA: logout called when no user is logged in.')
 
 			return Promise.fromCallback(function (callback) {
 				window._gs(function() {
-					window._gs(TRACKER_NAME + '.unidentify');
+					window._gs(TRACKER_NAME + '.unidentify')
 					loggedIn = false
 					callback()
 				})
@@ -31,7 +31,6 @@ module.exports = function (gosquaredId, apiKey, debug) {
 		},
 		track: function (type, data) {
 			return Promise.fromCallback(function (callback) {
-				console.log(type, data)
 				if (type === 'Page Visit') {
 					window._gs(TRACKER_NAME + '.track', data.url || window.location.pathname)
 				} else {

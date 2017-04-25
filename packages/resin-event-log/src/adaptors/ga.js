@@ -16,13 +16,13 @@ module.exports = function (options) {
 
 	return {
 		login: function(user) {
-			return gaClient.login(user.id)
+			return gaClient.login(user && user.userId)
 		},
 		logout: function() {
 			return gaClient.logout()
 		},
-		track: function (prefix, type/*, data */) {
-			return gaClient.track(site, type, prefix)
+		track: function (prefix, type, data) {
+			return gaClient.track(site, type, prefix, data)
 		}
 	}
 }
