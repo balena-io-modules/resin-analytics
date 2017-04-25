@@ -24,7 +24,7 @@ var DEFAULT_HOOKS = {
 
 var ADAPTORS = [
 	require('./adaptors/ga'),
-	// require('./adaptors/mixpanel'),
+	require('./adaptors/mixpanel'),
 	require('./adaptors/gosquared')
 ]
 

@@ -48,19 +48,23 @@ module.exports = function (options) {
 
 	return {
 		login: function(user) {
-			var mixpanelUser = getMixpanelUser(user)
-			var methodName = mixpanelUser.$created ? 'signup' : 'login'
+			if (user) {
+				var mixpanelUser = getMixpanelUser(user)
+				var methodName = mixpanelUser.$created ? 'signup' : 'login'
 
-			return mixpanel[methodName](user.username)
-				.then(function() {
-					// Calling this also ensures that the auto-tracked properties
-					// ($os, $browser, $browser_version, $initial_referrer, $initial_referring_domain)
-					// are collected and sent
-					return mixpanel.setUser(mixpanelUser.update)
-				})
-				.then(function() {
-					return mixpanel.setUserOnce(mixpanelUser.oneTime)
-				})
+				return mixpanel[methodName](user.username)
+					.then(function() {
+						// Calling this also ensures that the auto-tracked properties
+						// ($os, $browser, $browser_version, $initial_referrer, $initial_referring_domain)
+						// are collected and sent
+						return mixpanel.setUser(mixpanelUser.update)
+					})
+					.then(function() {
+						return mixpanel.setUserOnce(mixpanelUser.oneTime)
+					})
+			} else {
+				mixpanel.login()
+			}
 		},
 		logout: function() {
 			return mixpanel.logout()
