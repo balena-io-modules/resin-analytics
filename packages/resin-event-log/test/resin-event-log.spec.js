@@ -117,10 +117,6 @@ function createGaMock(endpoint) {
 }
 
 function validateGsQuery(event) {
-	if (IS_BROWSER) {
-		return true
-	}
-
 	return (
 		event.site_token === GOSQUARED_ID &&
 		event.api_key === GOSQUARED_API_KEY
@@ -298,7 +294,7 @@ describe('ResinEventLog', function () {
 			var EXPECTED_EVENT = 'x'
 			var mockedRequest = createGsMock({
 				endpoint: endpoint,
-				method: IS_BROWSER ? 'GET' : 'POST',
+				method: 'POST',
 				filterBody: function (body, eventName) {
 					return (body.event.name === EXPECTED_EVENT)
 				}
@@ -315,19 +311,12 @@ describe('ResinEventLog', function () {
 					expect(!err).to.be.ok
 					expect(type).to.be.equal(EXPECTED_EVENT)
 
-					if (IS_BROWSER) {
-						// impossible to mock gosquared requests so we just check that 1 were made
-						// see https://github.com/resin-io-modules/resin-analytics/pull/14 for more info.
-						setTimeout(function () {
-							var resources = window.top.callPhantom()
-							var goSquaredRequests = _.filter(resources, function(r) {
-								return _.includes(r.url, 'gosquared')
-							})
-							expect(goSquaredRequests.length).to.be.above(0)
-							done()
-						}, 500)
-					} else {
+					if (!IS_BROWSER) {
 						expect(mockedRequest.isDone()).to.be.ok
+						done()
+					} else {
+						// Don't mock browser tests see:
+						// https://github.com/resin-io-modules/resin-analytics/pull/14
 						done()
 					}
 				}
@@ -362,8 +351,12 @@ describe('ResinEventLog', function () {
 
 					if (!IS_BROWSER) {
 						expect(mockedRequest.isDone()).to.be.ok
+						done()
+					} else {
+						// Don't mock browser tests see:
+						// https://github.com/resin-io-modules/resin-analytics/pull/14
+						done()
 					}
-					done()
 				}
 			})
 
