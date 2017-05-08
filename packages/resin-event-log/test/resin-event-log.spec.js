@@ -222,6 +222,29 @@ describe('ResinEventLog', function () {
 				eventLog.device.rename()
 			})
 		})
+
+		it('should make request to Mixpanel with out user info', function (done) {
+			var mockedRequest = createMixpanelMock({ endpoint: '/track' })
+
+			eventLog = ResinEventLog({
+				mixpanelToken: MIXPANEL_TOKEN,
+				prefix: SYSTEM,
+				debug: EXTRA_DEBUG,
+				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
+					if (err) {
+						console.error('Mixpanel error:', err)
+					}
+					expect(!err).to.be.ok
+					expect(type).to.be.equal('x')
+					expect(mockedRequest.isDone()).to.be.ok
+					done()
+				}
+			})
+
+			eventLog.start().then(function () {
+				eventLog.create('x')
+			})
+		})
 	})
 
 	describe('GA track', function () {
@@ -277,6 +300,30 @@ describe('ResinEventLog', function () {
 
 			eventLog.start(FAKE_USER).then(function () {
 				eventLog.device.rename()
+			})
+		})
+
+		it('should make request to GA with out user info', function (done) {
+			var mockedRequest = createGaMock('/collect')
+
+			eventLog = ResinEventLog({
+				gaId: GA_ID,
+				gaSite: GA_SITE,
+				prefix: SYSTEM,
+				debug: true,
+				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
+					if (err) {
+						console.error('GA error:', err)
+					}
+					expect(!err).to.be.ok
+					expect(type).to.be.equal('x')
+					expect(mockedRequest.isDone()).to.be.ok
+					done()
+				}
+			})
+
+			eventLog.start().then(function () {
+				eventLog.create('x')
 			})
 		})
 	})
@@ -362,6 +409,51 @@ describe('ResinEventLog', function () {
 
 			eventLog.start(FAKE_USER).then(function () {
 				eventLog.device.rename()
+			})
+		})
+
+		it('should make request to gosquared with out user info', function (done) {
+			var EXPECTED_EVENT = 'x'
+			var mockedRequest = createGsMock({
+				endpoint: endpoint,
+				method: IS_BROWSER ? 'GET' : 'POST',
+				filterBody: function (body, eventName) {
+					return (body.event.name === EXPECTED_EVENT)
+				}
+			})
+			eventLog = ResinEventLog({
+				gosquaredId: GOSQUARED_ID,
+				gosquaredApiKey: GOSQUARED_API_KEY,
+				prefix: SYSTEM,
+				debug: true,
+				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
+					if (err) {
+						console.error('gosquared error:', err)
+					}
+					expect(!err).to.be.ok
+					expect(type).to.be.equal(EXPECTED_EVENT)
+
+					if (IS_BROWSER) {
+						// impossible to mock gosquared requests so we just check that 1 were made
+						// see https://github.com/resin-io-modules/resin-analytics/pull/14 for more info.
+						setTimeout(function () {
+							var resources = window.top.callPhantom()
+							var goSquaredRequests = _.filter(resources, function(r) {
+								return _.includes(r.url, 'gosquared')
+							})
+							console.log(goSquaredRequests)
+							expect(goSquaredRequests.length).to.be.above(0)
+							done()
+						}, 500)
+					} else {
+						expect(mockedRequest.isDone()).to.be.ok
+						done()
+					}
+				}
+			})
+
+			eventLog.start().then(function () {
+				eventLog.create('x')
 			})
 		})
 	})

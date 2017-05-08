@@ -24,7 +24,7 @@ module.exports = function (options) {
 
 	return {
 		login: function(user) {
-			return gsClient.login(user.userId)
+			return gsClient.login(user && user.userId)
 		},
 		logout: function() {
 			return gsClient.logout()

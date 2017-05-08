@@ -4,10 +4,10 @@ var Promise = require('bluebird')
 var TRACKER_NAME = 'resinAnalytics'
 
 module.exports = function (gosquaredId, apiKey, debug) {
-	loggedIn = false
+	var loggedIn = false
+
 	return {
 		login: function (userId) {
-			// automatically track pageviews in debug mode
 			window._gs(gosquaredId, TRACKER_NAME, debug)
 			window._gs(TRACKER_NAME + '.set', 'trackLocal', debug)
 
@@ -15,11 +15,11 @@ module.exports = function (gosquaredId, apiKey, debug) {
 				window._gs(TRACKER_NAME + '.identify', {
 					id: userId
 				})
+				loggedIn = true
 			}
-			loggedIn = true
 		},
 		logout: function () {
-			if (!loggedIn) return Promise.reject(new Error("gosquared logout called before login"))
+			if (!loggedIn && debug) console.warn('GA: logout called when no user is logged in.')
 
 			return Promise.fromCallback(function (callback) {
 				window._gs(function() {
@@ -30,8 +30,6 @@ module.exports = function (gosquaredId, apiKey, debug) {
 			})
 		},
 		track: function (type, data) {
-			if (!loggedIn) return Promise.reject(new Error("Can't record gosquared events without a login first"))
-
 			return Promise.fromCallback(function (callback) {
 				if (type === 'Page Visit') {
 					window._gs(TRACKER_NAME + '.track', data.url || window.location.pathname)

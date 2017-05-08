@@ -55,14 +55,17 @@ module.exports = function(token, options) {
 		login: function(uid) {
 			self.userId = uid
 
-			return mixpanelToPromise(function (callback) {
-				if (isBrowser) {
-					mixpanel.identify(uid)
-					callback()
-				} else {
-					mixpanel.people.set_once(uid, { '$distinct_id': uid }, callback)
-				}
-			})
+			if (uid) {
+				return mixpanelToPromise(function (callback) {
+					if (isBrowser) {
+						mixpanel.identify(uid)
+						callback()
+					} else {
+						mixpanel.people.set_once(uid, { '$distinct_id': uid }, callback)
+					}
+				})
+			}
+			return Promise.resolve()
 		},
 		logout: function() {
 			self.userId = null
@@ -104,7 +107,7 @@ module.exports = function(token, options) {
 		},
 		track: function(event, props) {
 			return mixpanelToPromise(function(callback) {
-				if (!isBrowser) {
+				if (!isBrowser && self.userId) {
 					props.distinct_id = self.userId
 				}
 
