@@ -11,7 +11,8 @@ var EVENTS = {
 	application: [ 'create', 'open', 'delete', 'osDownload' ],
 	environmentVariable: [ 'create', 'edit', 'delete' ],
 	device: [ 'open', 'rename', 'delete', 'terminalOpen', 'terminalClose' ],
-	deviceEnvironmentVariable: [ 'create', 'edit', 'delete' ]
+	deviceEnvironmentVariable: [ 'create', 'edit', 'delete' ],
+	page: [ 'visit' ]
 }
 
 var DEFAULT_HOOKS = {
@@ -23,7 +24,8 @@ var DEFAULT_HOOKS = {
 
 var ADAPTORS = [
 	require('./adaptors/ga'),
-	require('./adaptors/mixpanel')
+	require('./adaptors/mixpanel'),
+	require('./adaptors/gosquared')
 ]
 
 module.exports = function(options) {

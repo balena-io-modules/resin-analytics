@@ -1,0 +1,20 @@
+{
+  "name": "resin-universal-gosquared",
+  "version": "0.1.0",
+  "description": "A CommonJS wrapper for both Node.js and browser (async) version of goSquared Analytics library",
+  "main": "src/node.js",
+  "browser": "src/browser.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "Craig Mulligan <craig@resin.io>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "bluebird": "^3.4.7",
+    "gosquared": "3.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:resin-io-modules/resin-analytics.git"
+  },
+  "homepage": "https://github.com/resin-io-modules/resin-analytics"
+}
