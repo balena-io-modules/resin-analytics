@@ -33,6 +33,7 @@ var FAKE_USER = {
 	email: 'fake@example.com',
 	$created: new Date().toISOString()
 }
+var FAKE_EVENT = 'x'
 
 function aggregateMock(mocks) {
 	return {
@@ -44,17 +45,23 @@ function aggregateMock(mocks) {
 	}
 }
 
-function validateMixpanelQuery(event) {
+function validateMixpanelQuery(event, user) {
 	return function(queryObject) {
 		var data = queryObject.data
 		if (!data) return false
 
 		try {
 			data = JSON.parse(base64Decode(data))
+
+			if (data.event === '$create_alias') {
+				return (!user || user.FAKE_USER === data.properties.alias)
+			}
+
 			return (
-				data && data.properties &&
+				data &&
+				data.properties &&
 				data.properties.token === MIXPANEL_TOKEN &&
-				(!event || event === data.event)
+				(!event || data.event === '[' + SYSTEM + '] ' + event)
 			)
 		} catch (e) {
 			return false
@@ -64,14 +71,14 @@ function validateMixpanelQuery(event) {
 
 function createMixpanelMock(options, times) {
 	times = times || 1
-
 	_.defaults(options, {
 		host: MIXPANEL_HOST,
 		method: 'GET',
-		filterQuery: validateMixpanelQuery(options.event),
+		filterQuery: validateMixpanelQuery(options.event, options.user),
 		response: '1'
 	})
 	delete options.event
+	delete options.user
 
 	var mocks = _.range(times).map(function () {
 		return mock.create(options)
@@ -80,39 +87,45 @@ function createMixpanelMock(options, times) {
 	return aggregateMock(mocks)
 }
 
-function validateGaBody(bodyString) {
-	var data = bodyString.split('\n')[0]
-	if (!data) return false
+function validateGaBody(event, user) {
+	return function(bodyString) {
+		var data = bodyString.split('\n')[0]
+		if (!data) return false
 
-	try {
-		data = querystring.parse(data)
-
-		return (
-			data &&
-			data.t === 'event' &&
-			data.tid === GA_ID &&
-			data.ec === GA_SITE &&
-			data.el === SYSTEM
-		)
-	} catch (e) {
-		return false
+		try {
+			data = querystring.parse(data)
+			return (
+				data &&
+				data.t === 'event' &&
+				data.tid === GA_ID &&
+				data.ec === GA_SITE &&
+				data.el === SYSTEM &&
+				(!event || data.ea === event) &&
+				(!user || data.uid == user.id)
+			)
+		} catch (e) {
+			return false
+		}
 	}
 }
 
-function createOneGaMock(endpoint) {
-	return mock.create({
-		host: GA_HOST,
-		endpoint: endpoint,
-		method: 'POST',
-		filterBody: validateGaBody
-	})
-}
+function createGaMock(options, times) {
+	times = times || 1
 
-function createGaMock(endpoint) {
-	var mocks = [
-		createOneGaMock(endpoint),
-		createOneGaMock('/r' + endpoint)
-	]
+	_.defaults(options, {
+		host: GA_HOST,
+		method: 'POST',
+		filterBody: validateGaBody(options.event, options.user)
+	})
+
+	var mocks = _.range(times).reduce(function (acc) {
+		acc.push(mock.create(options))
+		browserOpts = _.clone(options)
+		browserOpts.endpoint = '/r' + options.endpoint
+		acc.push(mock.create(browserOpts))
+		return acc
+	}, [])
+
 	return aggregateMock(mocks)
 }
 
@@ -123,6 +136,15 @@ function validateGsQuery(queryString) {
 	)
 }
 
+function validateGsBody(event, user) {
+	return function(body) {
+		return (
+			(!event || body.event.name === '[' + SYSTEM + '] ' + event) &&
+			(!user || body.person_id == user.id)
+		)
+	}
+}
+
 function createGsMock(options, times) {
 	times = times || 1
 
@@ -130,7 +152,7 @@ function createGsMock(options, times) {
 		host: GOSQUARED_HOST,
 		method: 'POST',
 		filterQuery: validateGsQuery,
-		filterBody: function() { return true },
+		filterBody: validateGsBody(options.event, options.user),
 		response: '1'
 	})
 
@@ -176,8 +198,10 @@ describe('ResinEventLog', function () {
 			return eventLog.end()
 		})
 
-		it('should make request to Mixpanel and pass the token', function (done) {
-			var mockedRequest = createMixpanelMock({ endpoint: '/track' })
+		it('should make basic request', function (done) {
+			var mockedRequest = createMixpanelMock({
+				endpoint: '/track'
+			})
 
 			eventLog = ResinEventLog({
 				mixpanelToken: MIXPANEL_TOKEN,
@@ -188,19 +212,50 @@ describe('ResinEventLog', function () {
 						console.error('Mixpanel error:', err)
 					}
 					expect(!err).to.be.ok
-					expect(type).to.be.equal('x')
+					expect(type).to.be.equal(FAKE_EVENT)
+					expect(mockedRequest.isDone()).to.be.ok
+					done()
+				}
+			})
+
+			eventLog.start().then(function () {
+				eventLog.create(FAKE_EVENT)
+			})
+		})
+
+		it('should track event with user login', function (done) {
+			var mockedRequest = createMixpanelMock({
+				endpoint: '/track',
+				user: FAKE_USER,
+				event: FAKE_EVENT
+			})
+
+			eventLog = ResinEventLog({
+				mixpanelToken: MIXPANEL_TOKEN,
+				prefix: SYSTEM,
+				debug: EXTRA_DEBUG,
+				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
+					if (err) {
+						console.error('Mixpanel error:', err)
+					}
+					expect(!err).to.be.ok
+					expect(type).to.be.equal(FAKE_EVENT)
 					expect(mockedRequest.isDone()).to.be.ok
 					done()
 				}
 			})
 
 			eventLog.start(FAKE_USER).then(function () {
-				eventLog.create('x')
+				eventLog.create(FAKE_EVENT)
 			})
 		})
 
-		it('should have semantic methods like device.rename that send requests to mixpanel', function (done) {
-			var mockedRequest = createMixpanelMock({ endpoint: '/track' })
+		it('should have semantic methods like device.rename', function (done) {
+			var mockedRequest = createMixpanelMock({
+				endpoint: '/track',
+				user: FAKE_USER,
+				event: 'Device Rename'
+			})
 
 			eventLog = ResinEventLog({
 				mixpanelToken: MIXPANEL_TOKEN,
@@ -219,6 +274,110 @@ describe('ResinEventLog', function () {
 
 			eventLog.start(FAKE_USER).then(function () {
 				eventLog.device.rename()
+			})
+		})
+
+		it('should track event with anon user', function (done) {
+
+			var mockedRequest = createMixpanelMock({
+				endpoint: '/track',
+				event: FAKE_EVENT,
+				user: (function () {
+					// we only test for the distinct_id == undefined in node
+					// because browser will generate a random uuid
+					if (!IS_BROWSER) {
+						return {
+							username: undefined
+						}
+					}
+				})()
+			})
+
+			eventLog = ResinEventLog({
+				mixpanelToken: MIXPANEL_TOKEN,
+				prefix: SYSTEM,
+				debug: EXTRA_DEBUG,
+				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
+					if (err) {
+						console.error('Mixpanel error:', err)
+					}
+					expect(!err).to.be.ok
+					expect(type).to.be.equal(FAKE_EVENT)
+					expect(mockedRequest.isDone()).to.be.ok
+					done()
+				}
+			})
+
+			eventLog.start().then(function () {
+				eventLog.create(FAKE_EVENT)
+			})
+		})
+
+		it('should track event with anonLogin and allow login later', function (done) {
+			var mockedRequest = createMixpanelMock({
+				endpoint: '/track',
+				event: FAKE_EVENT,
+				user: (function () {
+					// we only test for the distinct_id == undefined in node
+					// because browser will generate a random uuid
+					if (!IS_BROWSER) {
+						return {
+							username: undefined
+						}
+					}
+				})()
+			})
+
+			eventLog = ResinEventLog({
+				mixpanelToken: MIXPANEL_TOKEN,
+				prefix: SYSTEM,
+				debug: EXTRA_DEBUG,
+				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
+					if (err) {
+						console.error('Mixpanel error:', err)
+					}
+					expect(!err).to.be.ok
+					expect(type).to.be.equal(FAKE_EVENT)
+				}
+			})
+
+			eventLog.start().then(function () {
+				return eventLog.create(FAKE_EVENT)
+			})
+			.then(function() {
+				return eventLog.start(FAKE_USER)
+			})
+			.then(function() {
+				expect(mockedRequest.isDone()).to.be.ok
+				// TODO: not sure why but only works if you clear all pending mocks
+				mock.reset()
+				mockedRequest = createMixpanelMock({
+					endpoint: '/track',
+					user: FAKE_USER,
+					event: FAKE_EVENT
+				})
+				return eventLog.create(FAKE_EVENT)
+			})
+			.then(function() {
+				expect(mockedRequest.isDone()).to.be.ok
+				done()
+			})
+			.catch(function(err) {
+				console.log(err)
+			})
+		})
+
+		it('should throw error when user with no .id is passed', function (done) {
+			eventLog = ResinEventLog({
+				mixpanelToken: MIXPANEL_TOKEN,
+				prefix: SYSTEM,
+				debug: EXTRA_DEBUG
+			})
+
+			eventLog.start({})
+			.catch(function(err) {
+				expect(err.message).to.equal('.id & .username are required when logging in a user')
+				done()
 			})
 		})
 	})
@@ -316,8 +475,10 @@ describe('ResinEventLog', function () {
 			return eventLog.end()
 		})
 
-		it('should make request to GA', function (done) {
-			var mockedRequest = createGaMock('/collect')
+		it('should make basic request', function (done) {
+			var mockedRequest = createGaMock({
+				endpoint: '/collect'
+			})
 
 			eventLog = ResinEventLog({
 				gaId: GA_ID,
@@ -329,19 +490,78 @@ describe('ResinEventLog', function () {
 						console.error('GA error:', err)
 					}
 					expect(!err).to.be.ok
-					expect(type).to.be.equal('x')
+					expect(type).to.be.equal(FAKE_EVENT)
+					expect(mockedRequest.isDone()).to.be.ok
+					done()
+				}
+			})
+
+			eventLog.start().then(function () {
+				eventLog.create(FAKE_EVENT)
+			})
+		})
+
+		it('should track event with user login', function (done) {
+			var mockedRequest = createGaMock({
+				endpoint: '/collect',
+				user: FAKE_USER
+			})
+
+			eventLog = ResinEventLog({
+				gaId: GA_ID,
+				gaSite: GA_SITE,
+				prefix: SYSTEM,
+				debug: true,
+				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
+					if (err) {
+						console.error('GA error:', err)
+					}
+					expect(!err).to.be.ok
+					expect(type).to.be.equal(FAKE_EVENT)
 					expect(mockedRequest.isDone()).to.be.ok
 					done()
 				}
 			})
 
 			eventLog.start(FAKE_USER).then(function () {
-				eventLog.create('x')
+				eventLog.create(FAKE_EVENT)
 			})
 		})
 
-		it('should have semantic methods like device.rename that send requests to GA', function (done) {
-			var mockedRequest = createGaMock('/collect')
+		it('should track event with anon user', function (done) {
+			var mockedRequest = createGaMock({
+				endpoint: '/collect',
+				user: {
+					id: undefined
+				}
+			})
+
+			eventLog = ResinEventLog({
+				gaId: GA_ID,
+				gaSite: GA_SITE,
+				prefix: SYSTEM,
+				debug: true,
+				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
+					if (err) {
+						console.error('GA error:', err)
+					}
+					expect(!err).to.be.ok
+					expect(type).to.be.equal('Device Rename')
+					expect(mockedRequest.isDone()).to.be.ok
+					done()
+				}
+			})
+
+			eventLog.start().then(function () {
+				eventLog.device.rename()
+			})
+		})
+
+		it('should have semantic methods like device.rename', function (done) {
+			var mockedRequest = createGaMock({
+				endpoint: '/collect',
+				event: 'Device Rename'
+			})
 
 			eventLog = ResinEventLog({
 				gaId: GA_ID,
@@ -363,10 +583,53 @@ describe('ResinEventLog', function () {
 				eventLog.device.rename()
 			})
 		})
+
+		it('should track event with anonLogin and allow login later', function (done) {
+			var mockedRequest = createGaMock({
+				endpoint: '/collect',
+				user: {
+					id: undefined
+				},
+				event: FAKE_EVENT
+			})
+
+			eventLog = ResinEventLog({
+				gaId: GA_ID,
+				gaSite: GA_SITE,
+				prefix: SYSTEM,
+				debug: true,
+				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
+					if (err) {
+						console.error('GA error:', err)
+					}
+					expect(!err).to.be.ok
+					expect(type).to.be.equal(FAKE_EVENT)
+				}
+			})
+
+			eventLog.start().then(function () {
+				return eventLog.create(FAKE_EVENT)
+			})
+			.then(function() {
+				expect(mockedRequest.isDone()).to.be.ok
+				mockedRequest = createGaMock({
+					endpoint: '/collect',
+					user: FAKE_USER,
+					event: FAKE_EVENT
+				})
+				return eventLog.start(FAKE_USER)
+			})
+			.then(function() {
+				return eventLog.create(FAKE_EVENT)
+			})
+			.then(function() {
+				expect(mockedRequest.isDone()).to.be.ok
+				done()
+			})
+		})
 	})
 
 	describe('gosquared track', function () {
-		this.timeout(15000)
 		var endpoint = '/tracking/v1/event'
 		var eventLog
 
@@ -374,14 +637,44 @@ describe('ResinEventLog', function () {
 			return eventLog.end()
 		})
 
-		it('should make request to gosquared', function (done) {
-			var EXPECTED_EVENT = 'x'
+		it('should make basic request', function (done) {
+			var mockedRequest = createGsMock({
+				endpoint: endpoint
+			})
+
+			eventLog = ResinEventLog({
+				gosquaredId: GOSQUARED_ID,
+				gosquaredApiKey: GOSQUARED_API_KEY,
+				prefix: SYSTEM,
+				debug: true,
+				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
+					if (err) {
+						console.error('gosquared error:', err)
+					}
+					expect(!err).to.be.ok
+					expect(type).to.be.equal(FAKE_EVENT)
+
+					if (!IS_BROWSER) {
+						expect(mockedRequest.isDone()).to.be.ok
+						done()
+					} else {
+						// TODO: mock browser tests.
+						// see: https://github.com/resin-io-modules/resin-analytics/pull/14
+						done()
+					}
+				}
+			})
+
+			eventLog.start().then(function () {
+				eventLog.create(FAKE_EVENT)
+			})
+		})
+
+		it('should track event with user login', function (done) {
 			var mockedRequest = createGsMock({
 				endpoint: endpoint,
-				method: 'POST',
-				filterBody: function (body, eventName) {
-					return (body.event.name === '[' + SYSTEM + '] ' + EXPECTED_EVENT)
-				}
+				user: FAKE_USER,
+				event: FAKE_EVENT
 			})
 			eventLog = ResinEventLog({
 				gosquaredId: GOSQUARED_ID,
@@ -393,7 +686,7 @@ describe('ResinEventLog', function () {
 						console.error('gosquared error:', err)
 					}
 					expect(!err).to.be.ok
-					expect(type).to.be.equal(EXPECTED_EVENT)
+					expect(type).to.be.equal(FAKE_EVENT)
 
 					if (!IS_BROWSER) {
 						expect(mockedRequest.isDone()).to.be.ok
@@ -407,17 +700,17 @@ describe('ResinEventLog', function () {
 			})
 
 			eventLog.start(FAKE_USER).then(function () {
-				eventLog.create(EXPECTED_EVENT)
+				eventLog.create(FAKE_EVENT)
 			})
 		})
 
-		it('should have semantic methods like device.rename that send requests to gosquared', function (done) {
-			var EXPECTED_EVENT = 'Device Rename'
+		it('should track event with anon user', function (done) {
 			var mockedRequest = createGsMock({
 				endpoint: endpoint,
-				filterBody: function (body, eventName) {
-					return (body.event.name === '[' + SYSTEM + '] ' + EXPECTED_EVENT)
-				}
+				user: {
+					id: undefined
+				},
+				event: FAKE_EVENT
 			})
 
 			eventLog = ResinEventLog({
@@ -430,7 +723,41 @@ describe('ResinEventLog', function () {
 						console.error('gosquared error:', err)
 					}
 					expect(!err).to.be.ok
-					expect(type).to.be.equal(EXPECTED_EVENT)
+					expect(type).to.be.equal(FAKE_EVENT)
+
+					if (!IS_BROWSER) {
+						expect(mockedRequest.isDone()).to.be.ok
+						done()
+					} else {
+						// TODO: mock browser tests.
+						// see: https://github.com/resin-io-modules/resin-analytics/pull/14
+						done()
+					}
+				}
+			})
+
+			eventLog.start().then(function () {
+				eventLog.create(FAKE_EVENT)
+			})
+		})
+
+		it('should have semantic methods like device.rename', function (done) {
+			var mockedRequest = createGsMock({
+				endpoint: endpoint,
+				event: 'Device Rename'
+			})
+
+			eventLog = ResinEventLog({
+				gosquaredId: GOSQUARED_ID,
+				gosquaredApiKey: GOSQUARED_API_KEY,
+				prefix: SYSTEM,
+				debug: true,
+				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
+					if (err) {
+						console.error('gosquared error:', err)
+					}
+					expect(!err).to.be.ok
+					expect(type).to.be.equal('Device Rename')
 
 					if (!IS_BROWSER) {
 						expect(mockedRequest.isDone()).to.be.ok
@@ -448,16 +775,13 @@ describe('ResinEventLog', function () {
 			})
 		})
 
-		it('should attach person to event when user is given', function (done) {
-			var EXPECTED_EVENT = 'y'
+		it('should track event with anonLogin and allow login later', function (done) {
 			var mockedRequest = createGsMock({
 				endpoint: endpoint,
-				filterBody: function (body, eventName) {
-					return (
-						body.event.name === '[' + SYSTEM + '] ' + EXPECTED_EVENT &&
-						body.person_id == FAKE_USER.id
-					)
-				}
+				user: {
+					id: undefined
+				},
+				event: FAKE_EVENT
 			})
 
 			eventLog = ResinEventLog({
@@ -470,21 +794,37 @@ describe('ResinEventLog', function () {
 						console.error('gosquared error:', err)
 					}
 					expect(!err).to.be.ok
-					expect(type).to.be.equal(EXPECTED_EVENT)
-
-					if (!IS_BROWSER) {
-						expect(mockedRequest.isDone()).to.be.ok
-						done()
-					} else {
-						// TODO: mock browser tests.
-						// see: https://github.com/resin-io-modules/resin-analytics/pull/14
-						done()
-					}
+					expect(type).to.be.equal(FAKE_EVENT)
 				}
 			})
 
-			eventLog.start(FAKE_USER).then(function () {
-				eventLog.create(EXPECTED_EVENT)
+			eventLog.start().then(function () {
+				return eventLog.create(FAKE_EVENT)
+			})
+			.then(function() {
+				if (!IS_BROWSER) {
+					expect(mockedRequest.isDone()).to.be.ok
+				}
+
+				mockedRequest = createGsMock({
+					endpoint: endpoint,
+					user: FAKE_USER,
+					event: FAKE_EVENT
+				})
+
+				return eventLog.start(FAKE_USER)
+			})
+			.then(function() {
+				return eventLog.create(FAKE_EVENT)
+			})
+			.then(function() {
+				if (!IS_BROWSER) {
+					expect(mockedRequest.isDone()).to.be.ok
+				}
+				done()
+			})
+			.catch(function(err) {
+				console.error(err)
 			})
 		})
 	})

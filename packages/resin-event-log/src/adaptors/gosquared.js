@@ -24,7 +24,12 @@ module.exports = function (options) {
 
 	return {
 		login: function(user) {
-			return gsClient.login(user.id)
+			if (user) {
+				return gsClient.login(user.id)
+			} else {
+				if (debug) console.warn("Gosquared: user.id not set, continuing with anon login")
+				return gsClient.anonLogin()
+			}
 		},
 		logout: function() {
 			return gsClient.logout()

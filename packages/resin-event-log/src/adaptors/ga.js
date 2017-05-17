@@ -16,7 +16,12 @@ module.exports = function (options) {
 
 	return {
 		login: function(user) {
-			return gaClient.login(user.id)
+			if (user) {
+				return gaClient.login(user.id)
+			} else {
+				if (debug) console.warn("GA: user.id not set, continuing with anon login")
+				return gaClient.anonLogin()
+			}
 		},
 		logout: function() {
 			return gaClient.logout()

@@ -6,10 +6,10 @@ module.exports = {
 
 	},
 	teardown: function () {
-
+		nock.cleanAll();
 	},
 	reset: function () {
-
+		nock.cleanAll();
 	},
 	create: function (options) {
 		options = _.defaults(options, { method: 'get' })
