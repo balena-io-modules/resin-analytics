@@ -1,3 +1,5 @@
+# 1.5.0
+
 * Add a new event for host OS updates on devices
 
 # 1.4.0
