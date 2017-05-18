@@ -10,7 +10,7 @@ var EVENTS = {
 	publicKey: [ 'create', 'delete' ],
 	application: [ 'create', 'open', 'delete', 'osDownload' ],
 	environmentVariable: [ 'create', 'edit', 'delete' ],
-	device: [ 'open', 'rename', 'delete', 'terminalOpen', 'terminalClose' ],
+	device: [ 'open', 'rename', 'delete', 'terminalOpen', 'terminalClose', 'hostOsUpdate' ],
 	deviceEnvironmentVariable: [ 'create', 'edit', 'delete' ],
 	page: [ 'visit' ]
 }

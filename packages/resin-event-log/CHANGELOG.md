@@ -1,3 +1,5 @@
+* Add a new event for host OS updates on devices
+
 # 1.4.0
 
 * Accept a new `mixpanelHost` option to override the mixpanel API domain
