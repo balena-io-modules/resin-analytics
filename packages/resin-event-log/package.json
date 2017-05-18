@@ -1,6 +1,6 @@
 {
   "name": "resin-event-log",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Resin events logging util",
   "main": "src/resin-event-log.js",
   "dependencies": {
@@ -8,7 +8,7 @@
     "lodash": "^4.0.0",
     "resin-mixpanel-client": "^2.1.0",
     "resin-universal-ga": "^1.1.0",
-    "resin-universal-gosquared": "^0.1.0"
+    "resin-universal-gosquared": "^0.1.1"
   },
   "devDependencies": {
     "base-64": "^0.1.0",
