@@ -48,8 +48,8 @@ module.exports = function (options) {
 
 	return {
 		login: function(user) {
+			var methodName = user.$created ? 'signup' : 'login'
 			var mixpanelUser = getMixpanelUser(user)
-			var methodName = mixpanelUser.$created ? 'signup' : 'login'
 
 			return mixpanel[methodName](user.username)
 				.then(function() {

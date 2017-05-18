@@ -223,6 +223,91 @@ describe('ResinEventLog', function () {
 		})
 	})
 
+	describe('Mixpanel identity', function () {
+		var eventLog
+
+		beforeEach(function() {
+			// We send up to three /engage requests:
+			// * on login: identify or $set_once with $distinct_id, to ensure the user exists
+			// * after login: $set to set their email/name/etc
+			// * after login: $set_once to set their created time, if they don't already have one.
+			createMixpanelMock({
+				endpoint: '/engage',
+				filterQuery: function() { return true }
+			}, 3)
+
+			createMixpanelMock({
+				endpoint: '/decide',
+				filterQuery: function() { return true },
+				response: JSON.stringify({"notifications":[],"config":{"enable_collect_everything":false}})
+			})
+		})
+
+		afterEach(function() {
+			return eventLog.end()
+		})
+
+		it('should create alias when $created property is passed', function (done) {
+			var aliasMock = createMixpanelMock({
+				endpoint: '/track',
+				event: '$create_alias'
+			})
+			var mockedRequest = createMixpanelMock({ endpoint: '/track' })
+
+			eventLog = ResinEventLog({
+				mixpanelToken: MIXPANEL_TOKEN,
+				prefix: SYSTEM,
+				debug: EXTRA_DEBUG,
+				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
+					if (err) {
+						console.error('Mixpanel error:', err)
+					}
+					expect(!err).to.be.ok
+					expect(type).to.be.equal('x')
+					expect(mockedRequest.isDone()).to.be.ok
+					expect(aliasMock.isDone()).to.be.ok
+					done()
+				}
+			})
+
+			eventLog.start(FAKE_USER).then(function () {
+				eventLog.create('x')
+			})
+		})
+
+		it('should NOT create alias when $created property is not passed', function (done) {
+			var aliasMock = createMixpanelMock({
+				endpoint: '/track',
+				event: '$create_alias'
+			})
+			var mockedRequest = createMixpanelMock({ endpoint: '/track' })
+
+			eventLog = ResinEventLog({
+				mixpanelToken: MIXPANEL_TOKEN,
+				prefix: SYSTEM,
+				debug: EXTRA_DEBUG,
+				afterCreate: function(err, type, jsonData, applicationId, deviceId) {
+					if (err) {
+						console.error('Mixpanel error:', err)
+					}
+					expect(!err).to.be.ok
+					expect(type).to.be.equal('x')
+					expect(mockedRequest.isDone()).to.be.ok
+					expect(!aliasMock.isDone()).to.be.ok
+					done()
+				}
+			})
+
+			eventLog.start({
+				username: 'fake',
+				id: 123,
+				email: 'fake@example.com',
+			}).then(function () {
+				eventLog.create('x')
+			})
+		})
+	})
+
 	describe('GA track', function () {
 		// NB: GA tests **must** be run with `debug: true`, it influences some the cookiDomain and transport params of GA tracking
 		var eventLog
