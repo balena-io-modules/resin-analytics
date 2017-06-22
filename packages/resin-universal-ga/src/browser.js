@@ -4,33 +4,40 @@ var Promise = require('bluebird')
 var TRACKER_NAME = 'resinAnalytics'
 
 module.exports = function (propertyId, site, debug) {
-	loggedIn = false
+	var booted = false
 
 	return {
-		login: function (userId) {
-			var options = {
-				userId: userId
-			}
+		boot: function() {
+			if (booted) return
+			var options = {}
+
 			if (debug) {
 				options.cookieDomain = 'none'
 			}
+
 			window.ga('create', propertyId, site, TRACKER_NAME, options)
-			loggedIn = true
+			booted = true
+		},
+		anonLogin: function () {
+			this.boot()
+		},
+		login: function (userId) {
+			this.boot()
+			ga(TRACKER_NAME + '.set', 'userId', userId)
 		},
 		logout: function () {
-			if (!loggedIn) return Promise.reject(new Error("GA logout called before login"))
-
 			return Promise.fromCallback(function (callback) {
 				window.ga(function() {
-					window.ga.remove(TRACKER_NAME)
-					loggedIn = false
+					if (booted) {
+						window.ga.remove(TRACKER_NAME)
+						booted = false
+					}
 					callback()
 				})
 			})
 		},
 		track: function (category, action, label) {
-			if (!loggedIn) return Promise.reject(new Error("Can't record GA events without a login first"))
-
+			this.boot()
 			return Promise.fromCallback(function (callback) {
 				var options = {
 					hitCallback: callback

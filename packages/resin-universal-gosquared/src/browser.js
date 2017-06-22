@@ -4,34 +4,39 @@ var Promise = require('bluebird')
 var TRACKER_NAME = 'resinAnalytics'
 
 module.exports = function (gosquaredId, apiKey, debug) {
-	loggedIn = false
+	var loggedIn = false
+	var booted = false
+
 	return {
-		login: function (userId) {
+		boot: function() {
+			if (booted) return
 			// automatically track pageviews in debug mode
 			window._gs(gosquaredId, TRACKER_NAME, debug)
+			// switch on tracking on local host in debug mode
 			window._gs(TRACKER_NAME + '.set', 'trackLocal', debug)
+			booted = true
+		},
+		anonLogin: function () {
+			this.boot()
+		},
+		login: function (userId) {
+			if (!userId) throw new Error('userId required call .login')
+			if (!booted) this.boot()
 
-			if (userId) {
-				window._gs(TRACKER_NAME + '.identify', {
-					id: userId
-				})
-			}
+			window._gs(TRACKER_NAME + '.identify', {
+				id: userId
+			})
+
 			loggedIn = true
 		},
 		logout: function () {
-			if (!loggedIn) return Promise.reject(new Error("gosquared logout called before login"))
-
-			return Promise.fromCallback(function (callback) {
-				window._gs(function() {
-					window._gs(TRACKER_NAME + '.unidentify')
-					loggedIn = false
-					callback()
-				})
-			})
+			if (booted && loggedIn) {
+				window._gs(TRACKER_NAME + '.unidentify')
+				loggedIn = false
+			}
 		},
 		track: function (prefix, type, data) {
-			if (!loggedIn) return Promise.reject(new Error("Can't record gosquared events without a login first"))
-
+			this.boot()
 			return Promise.fromCallback(function (callback) {
 				if (type === 'Page Visit') {
 					window._gs(TRACKER_NAME + '.track', data.url || window.location.pathname)

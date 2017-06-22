@@ -61,13 +61,14 @@ module.exports = function(options) {
 		userId: null,
 		prefix: prefix,
 		start: function(user, callback) {
-			if (!user) {
-				return Promise.reject(new Error(
-					'user is required to start events interaction.'
-				)).asCallback(callback)
+			if (user) {
+				if (!user.id || !user.username) {
+					return Promise.reject(
+						new Error('.id & .username are required when logging in a user')
+					)
+				}
+				this.userId = user.id
 			}
-
-			this.userId = user.id
 
 			return runForAllAdaptors('login', [ user ], callback)
 		},

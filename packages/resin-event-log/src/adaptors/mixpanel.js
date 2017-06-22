@@ -1,5 +1,6 @@
 var assign = require('lodash/assign')
 var pick = require('lodash/pick')
+var Promise = require('bluebird')
 
 var ResinMixpanelClient = require('resin-mixpanel-client')
 
@@ -48,6 +49,7 @@ module.exports = function (options) {
 
 	return {
 		login: function(user) {
+			if (!user) return
 			var methodName = user.$created ? 'signup' : 'login'
 			var mixpanelUser = getMixpanelUser(user)
 

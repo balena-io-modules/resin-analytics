@@ -2,34 +2,36 @@ var Promise = require('bluebird')
 var ua = require('universal-analytics')
 
 module.exports = function(propertyId, site, debug) {
-	var visitor = null
-	function createVisitor(userId) {
-		if (visitor) return visitor
-		return visitor = ua(propertyId, userId, {
-			strictCidFormat: false,
-			https: true
-		})
-		if (debug) {
-			visitor = visitor.debug()
-		}
-	}
-	function destroyVisitor() {
-		visitor = null
-	}
+	var ga = null
+
 	return {
+		boot: function() {
+			if (ga) return
+			ga = ua(propertyId, {
+				strictCidFormat: false,
+				https: true
+			})
+
+			if (debug) {
+				ga = ga.debug()
+			}
+		},
+		anonLogin: function(userId) {
+			this.boot()
+		},
 		login: function(userId) {
-			createVisitor(userId)
+			this.boot()
+			ga.set('uid', userId)
 		},
 		logout: function() {
-			destroyVisitor()
+			ga = null
 		},
 		track: function(category, action, label) {
 			// if called before `login` create the object with the random ID
-			createVisitor()
+			this.boot()
 			return Promise.fromCallback(function (callback) {
-				visitor.event(category, action, label, undefined, callback)
+				ga.event(category, action, label, undefined, callback)
 			})
 		}
 	}
 }
-

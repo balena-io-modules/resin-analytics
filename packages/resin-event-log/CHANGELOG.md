@@ -1,3 +1,7 @@
+# 1.6.0
+
+* Allow anon login and event tracking
+
 # 1.5.0
 
 * Add a new event for host OS updates on devices

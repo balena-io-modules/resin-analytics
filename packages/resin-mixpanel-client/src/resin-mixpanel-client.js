@@ -104,7 +104,7 @@ module.exports = function(token, options) {
 		},
 		track: function(event, props) {
 			return mixpanelToPromise(function(callback) {
-				if (!isBrowser) {
+				if (!isBrowser && self.userId) {
 					props.distinct_id = self.userId
 				}
 
