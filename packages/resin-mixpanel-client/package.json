@@ -1,6 +1,6 @@
 {
   "name": "resin-mixpanel-client",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "The library to normalize the Mixpanel browser / node idiosyncrasies",
   "main": "src/resin-mixpanel-client.js",
   "scripts": {

@@ -1,14 +1,14 @@
 {
   "name": "resin-event-log",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "Resin events logging util",
   "main": "src/resin-event-log.js",
   "dependencies": {
     "bluebird": "^3.4.7",
     "lodash": "^4.0.0",
-    "resin-mixpanel-client": "^2.1.0",
-    "resin-universal-ga": "^1.1.0",
-    "resin-universal-gosquared": "^0.1.1"
+    "resin-mixpanel-client": "^2.2.0",
+    "resin-universal-ga": "^1.2.0",
+    "resin-universal-gosquared": "^0.2.0"
   },
   "devDependencies": {
     "base-64": "^0.1.0",
@@ -19,7 +19,7 @@
     "querystring": "^0.2.0",
     "resin-config-karma": "^1.0.4",
     "resin-lint": "^1.4.0",
-    "resin-universal-http-mock": "^1.0.0"
+    "resin-universal-http-mock": "^1.0.1"
   },
   "scripts": {
     "bundle": "browserify src/resin-event-log.js -o build/bundle.js",
