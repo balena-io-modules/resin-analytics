@@ -6,7 +6,7 @@ var startCase = require('lodash/startCase')
 
 
 var EVENTS = {
-	user: [ 'login', 'logout', 'signup', 'passwordCreate', 'passwordEdit', 'emailEdit' ],
+	user: [ 'login', 'logout', 'signup', 'passwordCreate', 'passwordEdit', 'emailEdit', 'usernameEdit' ],
 	publicKey: [ 'create', 'delete' ],
 	application: [ 'create', 'open', 'delete', 'osDownload' ],
 	environmentVariable: [ 'create', 'edit', 'delete' ],

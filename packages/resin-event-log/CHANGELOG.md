@@ -1,3 +1,5 @@
+* Add a new user event for username edit
+
 # 1.6.0
 
 * Allow anon login and event tracking
