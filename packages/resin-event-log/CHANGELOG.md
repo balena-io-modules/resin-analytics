@@ -1,3 +1,5 @@
+# 1.7.0
+
 * Add a new user event for username edit
 
 # 1.6.0
