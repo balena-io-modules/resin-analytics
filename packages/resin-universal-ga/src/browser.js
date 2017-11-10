@@ -48,7 +48,7 @@ module.exports = function (propertyId, site, debug) {
 
 				if (action === 'Page Visit') {
 					window.ga(TRACKER_NAME + '.set', 'page', data.url || window.location.pathname)
-					window.ga(TRACKER_NAME + '.send', 'pageview')
+					window.ga(TRACKER_NAME + '.send', 'pageview', data)
 					// the hitCallback option isn't fired when calling hitType `pageview`
 					// so we manually call callback()
 					callback()
