@@ -36,7 +36,7 @@ module.exports = function (propertyId, site, debug) {
 				})
 			})
 		},
-		track: function (category, action, label) {
+		track: function (category, action, label, data) {
 			this.boot()
 			return Promise.fromCallback(function (callback) {
 				var options = {
@@ -45,11 +45,20 @@ module.exports = function (propertyId, site, debug) {
 				if (debug) {
 					options.transport = 'xhr'
 				}
-				window.ga(
-					TRACKER_NAME + '.send', 'event',
-					category, action, label,
-					options
-				)
+
+				if (action === 'Page Visit') {
+					window.ga(TRACKER_NAME + '.set', 'page', data.url || window.location.pathname)
+					window.ga(TRACKER_NAME + '.send', 'pageview')
+					// the hitCallback option isn't fired when calling hitType `pageview`
+					// so we manually call callback()
+					callback()
+				} else {
+					window.ga(
+						TRACKER_NAME + '.send', 'event',
+						category, action, label,
+						options
+					)
+				}
 			}).timeout(1000)
 		}
 	}

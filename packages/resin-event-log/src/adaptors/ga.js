@@ -26,8 +26,8 @@ module.exports = function (options) {
 		logout: function() {
 			return gaClient.logout()
 		},
-		track: function (prefix, type/*, data */) {
-			return gaClient.track(site, type, prefix)
+		track: function (prefix, type, data) {
+			return gaClient.track(site, type, prefix, data)
 		}
 	}
 }
