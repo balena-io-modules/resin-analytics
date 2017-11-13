@@ -1,3 +1,7 @@
+# 1.7.1
+
+* Send GA pageviews as pageview instead of event.
+
 # 1.7.0
 
 * Add a new user event for username edit
