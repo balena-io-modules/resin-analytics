@@ -1,4 +1,6 @@
-require('./ga-loader')
+if (window.ga === undefined) {
+	require('./ga-loader')
+}
 
 var Promise = require('bluebird')
 var TRACKER_NAME = 'resinAnalytics'
@@ -23,7 +25,7 @@ module.exports = function (propertyId, site, debug) {
 		},
 		login: function (userId) {
 			this.boot()
-			ga(TRACKER_NAME + '.set', 'userId', userId)
+			window.ga(TRACKER_NAME + '.set', 'userId', userId)
 		},
 		logout: function () {
 			return Promise.fromCallback(function (callback) {
