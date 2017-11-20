@@ -1,6 +1,6 @@
 {
   "name": "resin-universal-ga",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "A CommonJS wrapper for both Node.js and browser (async) version of Google Analytics library",
   "main": "src/node.js",
   "browser": "src/browser.js",
