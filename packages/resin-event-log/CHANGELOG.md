@@ -1,6 +1,10 @@
+# 1.7.2
+
+* Conditionally load GA script to prevent dupes
+
 # 1.7.1
 
-* Send GA pageviews as pageview instead of event.
+* Send GA pageviews as pageview instead of event
 
 # 1.7.0
 
