@@ -11,7 +11,7 @@
   "dependencies": {
     "bluebird": "^3.4.7",
     "mixpanel": "^0.6.0",
-    "mixpanel-browser": "^2.11.0"
+    "mixpanel-browser": "^2.11.0 <2.15.0"
   },
   "repository": {
     "type": "git",
