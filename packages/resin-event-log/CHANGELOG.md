@@ -1,3 +1,7 @@
+# 1.8.0
+
+* Add application & device actions, apiKeys, vars, tags & billing events.
+
 # 1.7.2
 
 * Conditionally load GA script to prevent dupes

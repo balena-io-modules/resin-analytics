@@ -1,3 +1,11 @@
+# 2.2.1
+
+* Update resin-universal-mixpanel dependency
+
+# 2.2.0
+
+* Allow anon login and event tracking
+
 # 2.1.0
 
 * Accept a mixpanel options object
