@@ -1,6 +1,6 @@
 {
   "name": "resin-mixpanel-client",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "The library to normalize the Mixpanel browser / node idiosyncrasies",
   "main": "src/resin-mixpanel-client.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "bluebird": "^3.4.7",
-    "resin-universal-mixpanel": "^2.1.0"
+    "resin-universal-mixpanel": "^2.1.1"
   },
   "devDependencies": {
     "resin-lint": "^1.4.0"

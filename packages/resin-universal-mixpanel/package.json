@@ -1,6 +1,6 @@
 {
   "name": "resin-universal-mixpanel",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "A CommonJS wrapper for both Node.js and browser (async) version of Mixpanel library",
   "main": "src/node.js",
   "browser": "src/browser.js",
