@@ -22,6 +22,7 @@ var EVENTS = {
 		'reboot',
 		'shutdown',
 		'applicationTypeChange',
+		'deactivate',
 		'delete'
 	],
 	applicationTag: [ 'set', 'create', 'edit', 'delete' ],

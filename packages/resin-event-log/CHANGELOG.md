@@ -1,3 +1,7 @@
+# 1.9.0
+
+* Include 'deactivate' device event
+
 # 1.8.0
 
 * Add application & device actions, apiKeys, vars, tags & billing events.
