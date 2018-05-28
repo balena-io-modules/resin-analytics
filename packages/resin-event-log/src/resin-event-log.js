@@ -22,7 +22,6 @@ var EVENTS = {
 		'reboot',
 		'shutdown',
 		'applicationTypeChange',
-		'deactivate',
 		'delete'
 	],
 	applicationTag: [ 'set', 'create', 'edit', 'delete' ],
@@ -51,7 +50,8 @@ var EVENTS = {
 		'purge',
 		'reboot',
 		'shutdown',
-		'delete'
+		'delete',
+		'deactivate',
 	],
 	deviceConfigVariable: [ 'create', 'edit', 'delete' ],
 	deviceEnvironmentVariable: [ 'create', 'edit', 'delete' ],
