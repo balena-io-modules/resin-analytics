@@ -1,3 +1,7 @@
+# 1.9.1
+
+* Move 'deactivate' event to device instead of application
+
 # 1.9.0
 
 * Include 'deactivate' device event
