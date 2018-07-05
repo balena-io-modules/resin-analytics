@@ -25,6 +25,7 @@ var EVENTS = {
 		'delete'
 	],
 	applicationTag: [ 'set', 'create', 'edit', 'delete' ],
+	applicationMembers: [ 'create', 'edit', 'delete' ],
 	configVariable: [ 'create', 'edit', 'delete' ],
 	environmentVariable: [ 'create', 'edit', 'delete' ],
 	serviceVariable: [ 'create', 'edit', 'delete' ],
