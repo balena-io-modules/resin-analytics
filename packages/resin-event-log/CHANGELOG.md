@@ -1,3 +1,7 @@
+# 1.10.0
+
+* Include events for Application members
+
 # 1.9.1
 
 * Move 'deactivate' event to device instead of application
