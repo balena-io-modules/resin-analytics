@@ -60,7 +60,8 @@ var EVENTS = {
 	deviceTag: [ 'set', 'create', 'edit', 'delete' ],
 	releaseTag: [ 'set', 'create', 'edit', 'delete' ],
 	billing: [ 'paymentInfoUpdate', 'planChange', 'invoiceDownload' ],
-	page: [ 'visit' ]
+	page: [ 'visit' ],
+	navigation: ['click']
 }
 
 var DEFAULT_HOOKS = {
