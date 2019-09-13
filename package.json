@@ -1,5 +1,6 @@
 {
   "name": "resin-analytics",
+  "private": true,
   "author": "Eugene Mirotin <eugene@resin.io>",
   "version": "1.0.0",
   "devDependencies": {

@@ -1,5 +1,9 @@
 # resin-analytics
 
+**⚠️ Deprecated in favor of [resin-event-log](https://github.com/balena-io-modules/resin-event-log)**
+
+---
+
 A collection of modules used by resin (UI and CLI) to track analytics events.
 
 The project uses [lerna](https://github.com/lerna/lerna) to work on the submodules.
