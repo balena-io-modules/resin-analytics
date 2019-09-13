@@ -2,7 +2,7 @@
   "name": "resin-analytics",
   "private": true,
   "author": "Eugene Mirotin <eugene@resin.io>",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "devDependencies": {
     "lerna": "2.0.0-beta.37",
     "require-npm4-to-publish": "^1.0.0"
